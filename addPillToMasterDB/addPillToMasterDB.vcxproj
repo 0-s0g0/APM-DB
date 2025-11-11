@@ -163,6 +163,7 @@
     <ClInclude Include="source\pgmBmp.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\x64\Release\makemaster_21.bat" />
     <None Include="source\makemaster.bat" />
     <None Include="source\master.db" />
   </ItemGroup>

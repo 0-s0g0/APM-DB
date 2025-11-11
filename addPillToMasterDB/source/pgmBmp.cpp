@@ -135,7 +135,7 @@ void writeBMP(char file_name[], unsigned char* image, int width, int height) {
 	/*ファイルオープン*/
 	errno_t err = fopen_s(&fp, fname, "wb");
 	if (err != 0) {
-		printf("ファイルをオープンできません．\n");
+		printf("ファイルをオープンできません1．\n");
 		exit(1);
 	}
 
@@ -279,7 +279,7 @@ void writePGM(char file_name[], unsigned char* image, int width, int height) {
 	strcat_s(fname, sizeof(fname), name);
 	errno_t err = fopen_s(&fp, fname, "wb");
 	if (err != 0) {
-		printf("ファイルをオープンできません．\n");
+		printf("ファイルをオープンできません2．\n");
 		exit(1);
 	}
 
@@ -317,7 +317,7 @@ void writePGM2(char file_name[], unsigned int* image, int width, int height, int
 		sprintf_s(filename, sizeof(filename), "%s%d%s", file_name, i, name);
 		errno_t err = fopen_s(&fp, filename, "wb");
 		if (err != 0) {
-			printf("ファイルをオープンできません．\n");
+			printf("ファイルをオープンできません3．\n");
 			exit(1);
 		}
 
@@ -613,7 +613,7 @@ void writeRGBHist(char filename[], int rHist[], int gHist[], int bHist[])
 	FILE* f;
 	errno_t err = fopen_s(&f, filename, "w");
 	if (err != 0) {
-		printf("ファイルをオープンできません．\n");
+		printf("ファイルをオープンできません4．\n");
 		exit(1);
 	}
 
@@ -757,104 +757,111 @@ void calCenter(int* center, double* diameter, int n, unsigned int* label, int wi
 }
 
 //マスターファイルを読み込む関数
-//マスターファイルを読み込む関数
+/**/
 masterData* readMaster(int* masterNum, int* vectorNum, char filename[]) {
 	int i, j;
 	FILE* masterFile;
-	masterData* master;
+	masterData* master = NULL; // NULL初期化
 
-	// ★修正: ポインタを NULL で初期化する
-	master = NULL;
+	// 新しいマスターデータを作成し、初期化する共通ロジック
+	// C言語の標準的な関数を使うため、ラムダ式ではなく標準的な関数として記述します
+	// (このコードブロックは、masterData構造体が定義されているファイル内に含まれる必要があります)
+
+	// ヘルパー関数をインラインでシミュレートするためのブロック
+	// 実際には、この処理を if (err != 0) と else/else if の分岐に展開します。
 
 	errno_t err = fopen_s(&masterFile, filename, "r");
-	if (err != 0) {
-		// ファイルが存在しない場合はエラーとせず、新しいマスターデータを作成する
+
+	// 1. ファイルが存在しない場合 (err != 0) または 2. ファイルが存在するが内容が不正・空の場合
+	if (err != 0 || (err == 0 && fscanf_s(masterFile, "%d%d", masterNum, vectorNum) != 2)) {
+
+		// 2. のケースでファイルを開けた場合は閉じる
+		if (err == 0) {
+			fclose(masterFile);
+			printf("マスターファイル(%s)は存在するが内容が空または不正な形式です。新規作成します。\n", filename);
+		}
+
+		// 新しいマスターデータを作成する (共通ロジック)
 		*masterNum = 0;
-		*vectorNum = TheNumberOfClass + DivisionNumber;
+		*vectorNum = TheNumberOfClass + DivisionNumber; // TheNumberOfClassとDivisionNumberはheader.hで定義されているはず
 		master = (masterData*)malloc(sizeof(masterData));
 		if (master == NULL) { printf("mallocエラー\n"); exit(1); }
+
+		// master[0]の初期化
 		master[0].id = 0;
-		for (j = 0; j < 100; j++) {
-			master[0].pillName[j] = 0;
-		}
+		for (j = 0; j < 100; j++) { master[0].pillName[j] = 0; }
 		master[0].numOfPills = 0;
 		for (j = 0; j < 3; j++) {
-			master[0].area[j] = 0.0;
-			master[0].diameter[j] = 0.0;
-			master[0].Rave[j] = 0.0;
-			master[0].Gave[j] = 0.0;
-			master[0].Bave[j] = 0.0;
-			master[0].Rmed[j] = 0.0;
-			master[0].Gmed[j] = 0.0;
-			master[0].Bmed[j] = 0.0;
+			master[0].area[j] = 0.0; master[0].diameter[j] = 0.0;
+			master[0].Rave[j] = 0.0; master[0].Gave[j] = 0.0;
+			master[0].Bave[j] = 0.0; master[0].Rmed[j] = 0.0;
+			master[0].Gmed[j] = 0.0; master[0].Bmed[j] = 0.0;
 		}
 		master[0].v = (double*)malloc(sizeof(double) * (*vectorNum));
 		if (master[0].v == NULL) { printf("mallocエラー\n"); exit(1); }
-		for (j = 0; j < *vectorNum; j++) {
-			master[0].v[j] = 0.0;
-		}
+		for (j = 0; j < *vectorNum; j++) { master[0].v[j] = 0.0; }
+
 		return master;
 	}
 
-	if (fscanf_s(masterFile, "%d%d", masterNum, vectorNum) != EOF) {
+	// 3. ファイルが存在し、ヘッダー情報 (masterNum, vectorNum) が読み込めた場合 (既存のファイル読み込み処理)
 
-		master = (masterData*)malloc(sizeof(masterData) * (*masterNum + 100)); // 少し多めに確保
-		if (master == NULL) { printf("mallocエラー\n"); exit(1); }
+	master = (masterData*)malloc(sizeof(masterData) * (*masterNum + 100)); // 少し多めに確保
+	if (master == NULL) { printf("mallocエラー\n"); exit(1); }
 
-		for (i = 0; i <= *masterNum; i++) {
-			master[i].id = 0;
-			for (j = 0; j < 100; j++) {
-				master[i].pillName[j] = 0;
-			}
-			master[i].numOfPills = 0;
-			for (j = 0; j < 3; j++) {
-				master[i].area[j] = 0.0;
-				master[i].diameter[j] = 0.0;
-				master[i].Rave[j] = 0.0;
-				master[i].Gave[j] = 0.0;
-				master[i].Bave[j] = 0.0;
-				master[i].Rmed[j] = 0.0;
-				master[i].Gmed[j] = 0.0;
-				master[i].Bmed[j] = 0.0;
-			}
-			master[i].v = (double*)malloc(sizeof(double) * (*vectorNum));
-			if (master[i].v == NULL) { printf("mallocエラー\n"); exit(1); }
-			for (j = 0; j < *vectorNum; j++) {
-				master[i].v[j] = 0.0;
-			}
+	for (i = 0; i <= *masterNum; i++) {
+		master[i].id = 0;
+		for (j = 0; j < 100; j++) {
+			master[i].pillName[j] = 0;
 		}
+		master[i].numOfPills = 0;
+		for (j = 0; j < 3; j++) {
+			master[i].area[j] = 0.0;
+			master[i].diameter[j] = 0.0;
+			master[i].Rave[j] = 0.0;
+			master[i].Gave[j] = 0.0;
+			master[i].Bave[j] = 0.0;
+			master[i].Rmed[j] = 0.0;
+			master[i].Gmed[j] = 0.0;
+			master[i].Bmed[j] = 0.0;
+		}
+		master[i].v = (double*)malloc(sizeof(double) * (*vectorNum));
+		if (master[i].v == NULL) { printf("mallocエラー\n"); exit(1); }
+		for (j = 0; j < *vectorNum; j++) {
+			master[i].v[j] = 0.0;
+		}
+	}
 
-		for (i = 0; i < *masterNum; i++) {
-			fscanf_s(masterFile, "%d", &((master + i)->id));
-			fscanf_s(masterFile, "%s", (master + i)->pillName, (unsigned)_countof((master + i)->pillName));
-			fscanf_s(masterFile, "%d", &((master + i)->numOfPills));
-			for (j = 0; j < 3; j++) {
-				fscanf_s(masterFile, "%lf", &((master + i)->area[j]));
-			}
-			for (j = 0; j < 3; j++) {
-				fscanf_s(masterFile, "%lf", &((master + i)->diameter[j]));
-			}
-			for (j = 0; j < 3; j++) {
-				fscanf_s(masterFile, "%lf", &((master + i)->Rave[j]));
-			}
-			for (j = 0; j < 3; j++) {
-				fscanf_s(masterFile, "%lf", &((master + i)->Gave[j]));
-			}
-			for (j = 0; j < 3; j++) {
-				fscanf_s(masterFile, "%lf", &((master + i)->Bave[j]));
-			}
-			for (j = 0; j < 3; j++) {
-				fscanf_s(masterFile, "%lf", &((master + i)->Rmed[j]));
-			}
-			for (j = 0; j < 3; j++) {
-				fscanf_s(masterFile, "%lf", &((master + i)->Gmed[j]));
-			}
-			for (j = 0; j < 3; j++) {
-				fscanf_s(masterFile, "%lf", &((master + i)->Bmed[j]));
-			}
-			for (j = 0; j < *vectorNum; j++) {
-				fscanf_s(masterFile, "%lf", &((master + i)->v[j]));
-			}
+	for (i = 0; i < *masterNum; i++) {
+		fscanf_s(masterFile, "%d", &((master + i)->id));
+		fscanf_s(masterFile, "%s", (master + i)->pillName, (unsigned)_countof((master + i)->pillName));
+		fscanf_s(masterFile, "%d", &((master + i)->numOfPills));
+		for (j = 0; j < 3; j++) {
+			fscanf_s(masterFile, "%lf", &((master + i)->area[j]));
+		}
+		for (j = 0; j < 3; j++) {
+			fscanf_s(masterFile, "%lf", &((master + i)->diameter[j]));
+		}
+		for (j = 0; j < 3; j++) {
+			fscanf_s(masterFile, "%lf", &((master + i)->Rave[j]));
+		}
+		for (j = 0; j < 3; j++) {
+			fscanf_s(masterFile, "%lf", &((master + i)->Gave[j]));
+		}
+		for (j = 0; j < 3; j++) {
+			fscanf_s(masterFile, "%lf", &((master + i)->Bave[j]));
+		}
+		for (j = 0; j < 3; j++) {
+			fscanf_s(masterFile, "%lf", &((master + i)->Rmed[j]));
+		}
+		for (j = 0; j < 3; j++) {
+			fscanf_s(masterFile, "%lf", &((master + i)->Gmed[j]));
+		}
+		for (j = 0; j < 3; j++) {
+			fscanf_s(masterFile, "%lf", &((master + i)->Bmed[j]));
+		}
+		for (j = 0; j < *vectorNum; j++) {
+			fscanf_s(masterFile, "%lf", &((master + i)->v[j]));
 		}
 	}
 
@@ -870,7 +877,7 @@ void writeMaster(int masterNum, int vectorNum, masterData* master, char filename
 
 	errno_t err = fopen_s(&masterFile, filename, "w");
 	if (err != 0) {
-		printf("ファイルをオープンできません．\n");
+		printf("ファイルをオープンできません5．\n");
 		exit(1);
 	}
 

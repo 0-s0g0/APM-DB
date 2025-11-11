@@ -48,9 +48,10 @@ int main(int argc, char* argv[])
 	//マスターファイルを読み込む
 	master = readMaster(&masterNum, &vectorNum, argv[3]);
 
-	// ★追加: readMasterが失敗した場合のエラーチェック
+	// readMasterが失敗した場合のエラーチェックをより具体的にする
 	if (master == NULL) {
-		printf("マスターファイルの読み込み、またはメモリの確保に失敗しました。\n");
+		printf("エラー: マスターファイル (%s) の読み込みに失敗しました。\n", argv[3]);
+		printf("ファイルが存在するか、またはパスが正しいか確認してください。\n");
 		exit(1);
 	}
 
@@ -60,14 +61,21 @@ int main(int argc, char* argv[])
 
 	/* 入力画像をファイルから読み込む */
 	inputBmp = readBMP(argv[1], &width, &height);
+	// ★追加: readBMPが失敗した場合のエラーチェック
+	if (inputBmp == NULL) {
+		printf("エラー: 入力BMPファイル (%s) の読み込みに失敗しました。\n", argv[1]);
+		printf("ファイルが存在するか、またはパスが正しいか確認してください。\n");
+		exit(1);
+	}
 	//追加(test)：inputBmpが正しく作成されているか確認するためにinputBmpを表示
 	//writeBMP(argv[4], inputBmp, width, height);
 
 	//RGBをgray画像に変換
 	gray = RGBtoGray(inputBmp, width, height);
-	//writePGM("gray", gray, width, height);
+	writePGM("./write/pgm/01_gray", gray, width, height);
 	/*しきい値に基づき画像を2値化する*/
 	inputPgm = binarization(gray, width, height, BinarizationNum);
+	writePGM("./write/pgm/02_binarization", inputPgm, width, height);
 	/*領域確保*/
 	label = (unsigned int*)malloc(sizeof(unsigned int) * width * height);
 	/*ラベリング処理*/
@@ -101,7 +109,7 @@ int main(int argc, char* argv[])
 
 	//RGBをgray画像に変換
 	gray = RGBtoGray(inputBmp, width, height);
-	//writePGM("gray2", gray, width, height);
+	writePGM("./write/pgm/01_gray2", gray, width, height);
 
 	/*面積*/
 	calArea(relabel, tablet, n, width, height);
@@ -134,6 +142,10 @@ int main(int argc, char* argv[])
 
 	/*追加：バイラテラルフィルタをgray画像に対して行う*/
 	Bilateral(gray, width, height, BilateralImage);
+	writePGM("./write/pgm/03_bilateral", BilateralImage, width, height);
+
+
+
 
 	//勾配の強さと方向を求める
 	caSlope(BilateralImage, relabel, n, width, height, fx, fy, strength, direction);
@@ -157,6 +169,7 @@ int main(int argc, char* argv[])
 
 	//勾配強さヒストグラムのしきい値を求めしきい値を適用した強さ画像を作成する
 	reMakeStrengthImage(strengthHist, relabel, width, height, n, tablet, areaOfEdge, strength, strengthImage);
+	writePGM("./write/pgm/04_strength_image", strengthImage, width, height);
 
 	/*追加：Cannyを用いた刻印の方向ヒストグラム及び強さヒストグラムの作成*/
 	//CannyStrengthImage(BilateralImage, relabel, width, height, n, tablet, areaOfEdge,strengthImage);
@@ -350,6 +363,22 @@ int main(int argc, char* argv[])
 
 	//マスターファイルに書き込む関数
 	writeMaster(masterNum, vectorNum, master, argv[3]);
+
+	// --- メモリの解放 ---
+	free(inputBmp);
+	free(gray);
+	free(inputPgm);
+	free(label);
+	free(relabel);
+	free(tablet);
+	free(strength);
+	free(direction);
+	free(strengthHist);
+	free(strengthImage);
+	free(directionHist0);
+	free(directionHist1);
+	free(directionHist2);
+	free(BilateralImage);
 
 	//色ヒストグラム書き込み関数(test)
 	//writeRGBHist(argv[4], rHist, gHist, bHist);
