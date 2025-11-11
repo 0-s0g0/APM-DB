@@ -11,7 +11,7 @@
  .\addPillToMasterDB.exe ..\Release\imageTablet_21\No000_300dpi.bmp No000 ..\Release\master_test.db
 ```
 
-### 一個ずつマスタに登録する方法
+### 一気にマスタに登録する方法
 1.batファイルをクリックする
 D:\addPillToMasterDB\x64\Debug\makemaster_21.bat
 
