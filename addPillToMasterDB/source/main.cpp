@@ -72,10 +72,12 @@ int main(int argc, char* argv[])
 
 	//RGBをgray画像に変換
 	gray = RGBtoGray(inputBmp, width, height);
-	writePGM("./write/pgm/01_gray", gray, width, height);
+	sprintf_s(fileNameOut, "./write/pgm/%s_01_gray", argv[2]);
+	writePGM(fileNameOut, gray, width, height);
 	/*しきい値に基づき画像を2値化する*/
 	inputPgm = binarization(gray, width, height, BinarizationNum);
-	writePGM("./write/pgm/02_binarization", inputPgm, width, height);
+	sprintf_s(fileNameOut, "./write/pgm/%s_02_binarization", argv[2]);
+	writePGM(fileNameOut, inputPgm, width, height);
 	/*領域確保*/
 	label = (unsigned int*)malloc(sizeof(unsigned int) * width * height);
 	/*ラベリング処理*/
@@ -109,7 +111,8 @@ int main(int argc, char* argv[])
 
 	//RGBをgray画像に変換
 	gray = RGBtoGray(inputBmp, width, height);
-	writePGM("./write/pgm/01_gray2", gray, width, height);
+	sprintf_s(fileNameOut, "./write/pgm/%s_01_gray2", argv[2]);
+	writePGM(fileNameOut, gray, width, height);
 
 	/*面積*/
 	calArea(relabel, tablet, n, width, height);
@@ -142,7 +145,8 @@ int main(int argc, char* argv[])
 
 	/*追加：バイラテラルフィルタをgray画像に対して行う*/
 	Bilateral(gray, width, height, BilateralImage);
-	writePGM("./write/pgm/03_bilateral", BilateralImage, width, height);
+	sprintf_s(fileNameOut, "./write/pgm/%s_03_bilateral", argv[2]);
+	writePGM(fileNameOut, BilateralImage, width, height);
 
 
 
@@ -169,7 +173,8 @@ int main(int argc, char* argv[])
 
 	//勾配強さヒストグラムのしきい値を求めしきい値を適用した強さ画像を作成する
 	reMakeStrengthImage(strengthHist, relabel, width, height, n, tablet, areaOfEdge, strength, strengthImage);
-	writePGM("./write/pgm/04_strength_image", strengthImage, width, height);
+	sprintf_s(fileNameOut, "./write/pgm/%s_04_strength_image", argv[2]);
+	writePGM(fileNameOut, strengthImage, width, height);
 
 	/*追加：Cannyを用いた刻印の方向ヒストグラム及び強さヒストグラムの作成*/
 	//CannyStrengthImage(BilateralImage, relabel, width, height, n, tablet, areaOfEdge,strengthImage);
