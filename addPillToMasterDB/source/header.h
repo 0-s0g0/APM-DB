@@ -1,38 +1,38 @@
-#ifndef __SAMPLE_H__
+ï»¿#ifndef __SAMPLE_H__
 #define __SAMPLE_H__
 
-#define TheNumberOfClass 10 //•ûŒüƒqƒXƒgƒOƒ‰ƒ€‚ÌŠK‹‰”
-#define DivisionNumber 10 //ùÜ‚Ì’†S‚©‚ç—ÖŠs‚Ü‚Å‚ğ“¯S‰~ó‚É•ªŠ„‚µ‚½•ªŠ„”
-#define BinarizationNum 45 //”Z’W‰æ‘œ‚ğ2’l‰»‚·‚é‚½‚ß‚Ì‚µ‚«‚¢’l
-#define deleteSmallAreaNum 500 //¬—Ìˆæ‚ğíœ‚·‚é‚Æ‚«‚Ì‚µ‚«‚¢’l
-#define areaOfEdge 0.4//ƒGƒbƒW‚Ì–ÊÏ‚ÌŠ„‡
-#define PI 3.14159265359 //‰~ü—¦
-#define WEIGHT 70 //@ùÜ‚Ì’†S‚©‚ç‚Ì—LŒø”ÍˆÍ(70=70%)
-#define STRENGTHMAX 370  //‹­‚³ƒqƒXƒgƒOƒ‰ƒ€‚ğì¬‚·‚éÛ‚Ì‹­‚³‚ÌÅ‘å’l
+#define TheNumberOfClass 10 //æ–¹å‘ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã®éšèª¿æ•°
+#define DivisionNumber 10 //éŒ å‰¤ã®ä¸­å¿ƒã‹ã‚‰è¼ªéƒ­ã¾ã§ã‚’åŒå¿ƒå††çŠ¶ã«åˆ†å‰²ã™ã‚‹å€‹æ•°
+#define BinarizationNum 45 //æ¿ƒæ·¡ç”»åƒã‚’2å€¤åŒ–ã™ã‚‹ãŸã‚ã®ã—ãã„å€¤
+#define deleteSmallAreaNum 500 //å°é ˜åŸŸã‚’å‰Šé™¤ã™ã‚‹æ™‚ã®ã—ãã„å€¤
+#define areaOfEdge 0.4//ã‚¨ãƒƒã‚¸ã®é¢ç©ã®å‰²åˆ
+#define PI 3.14159265359 //å††å‘¨ç‡
+#define WEIGHT 70 //éŒ å‰¤ã®ä¸­å¿ƒã‹ã‚‰ã®æœ‰åŠ¹ç¯„å›²(70=70%)
+#define STRENGTHMAX 370  //æ–¹å‘ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã‚’ä½œæˆã™ã‚‹éš›ã®å¼·åº¦ã®æœ€å¤§å€¤
 
 
 typedef struct masterData{
-	int id; // ùÜ‚Ì‰“‚µ”Ô†
-	char pillName[100]; //ùÜ‚Ì–¼‘O
-	int numOfPills; //ùÜ‚Ì”
-	double area[3]; // 0F•½‹Ï’l@1F•ê•ªU@2F’†‰›’l
-	double diameter[3]; // 0F•½‹Ï’l@1F•ê•ªU@2F’†‰›’l
-	double Rave[3]; double Gave[3]; double Bave[3]; // 0F•½‹Ï’l@1F•ê•ªU@2F’†‰›’l
-	double Rmed[3]; double Gmed[3]; double Bmed[3]; // 0F•½‹Ï’l@1F•ê•ªU@2F’†‰›’l
-	double *v; //“Á’¥ƒxƒNƒgƒ‹
+	int id; // éŒ å‰¤ã®ç®¡ç†ç•ªå·
+	char pillName[100]; //éŒ å‰¤ã®åå‰
+	int numOfPills; //éŒ å‰¤ã®æ•°
+	double area[3]; // 0:å¹³å‡å€¤ 1:æ¯åˆ†æ•£ 2:ä¸­å¤®å€¤
+	double diameter[3]; // 0:å¹³å‡å€¤ 1:æ¯åˆ†æ•£ 2:ä¸­å¤®å€¤
+	double Rave[3]; double Gave[3]; double Bave[3]; // 0:å¹³å‡å€¤ 1:æ¯åˆ†æ•£ 2:ä¸­å¤®å€¤
+	double Rmed[3]; double Gmed[3]; double Bmed[3]; // 0:å¹³å‡å€¤ 1:æ¯åˆ†æ•£ 2:ä¸­å¤®å€¤
+	double *v; //ç‰¹å¾´ãƒ™ã‚¯ãƒˆãƒ«
 }  masterData;
 
 typedef struct inputTablet{
-	int x; //’†SÀ•Wixj
-	int y; //’†SÀ•Wiyj
-	double area; //–ÊÏ
-	double diameter; //’¼Œa
-	double Rave; double Gave; double Bave; //RGB’l‚ÌŠe•½‹Ï’l(Rave[0]AGave[0]ABave[0])
-	double Rmed; double Gmed; double Bmed;  //RGB’l‚ÌŠe’†‰›’l(Rmed[2]AGmed[2]ABmed[2])
-	double directionHist[TheNumberOfClass]; //•ûŒüƒqƒXƒgƒOƒ‰ƒ€i0`1‚Ì”ÍˆÍj
-	int threshold; //Œù”zƒqƒXƒgƒOƒ‰ƒ€‚Ì‹­‚³‚Ì‚µ‚«‚¢’l
-	double diividedEdgepixelFrequency[DivisionNumber]; //ƒGƒbƒW‰æ‘f‚Ì•p“x
-	double diividedEdgepixelFrequency_misuno[DivisionNumber]; //’Ç‰Átest
+	int x; //ä¸­å¿ƒåº§æ¨™(x)
+	int y; //ä¸­å¿ƒåº§æ¨™(y)
+	double area; //é¢ç©
+	double diameter; //ç›´å¾„
+	double Rave; double Gave; double Bave; //RGBå€¤ã®å„å¹³å‡å€¤(Rave[0],Gave[0],Bave[0])
+	double Rmed; double Gmed; double Bmed;  //RGBå€¤ã®å„ä¸­å¤®å€¤(Rmed[2],Gmed[2],Bmed[2])
+	double directionHist[TheNumberOfClass]; //æ–¹å‘ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ (0~1ç¯„å›²)
+	int threshold; //å‹¾é…ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã®å¼·åº¦ã®ã—ãã„å€¤
+	double diividedEdgepixelFrequency[DivisionNumber]; //ã‚¨ãƒƒã‚¸ç”»ç´ ã®é »åº¦
+	double diividedEdgepixelFrequency_misuno[DivisionNumber]; //è¿½åŠ test
 } inputTablet;
 
 #endif /* __SAMPLE_H__ */

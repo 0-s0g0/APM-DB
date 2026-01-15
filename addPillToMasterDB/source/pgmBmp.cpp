@@ -1,4 +1,4 @@
-/*pgmBmp.cpp*/
+ï»¿/*pgmBmp.cpp*/
 
 #include<stdlib.h>
 #include<string.h>
@@ -7,104 +7,106 @@
 
 #include"header.h"
 
-/* ’è”éŒ¾ */
-#define MAX_IMAGESIZE      2600 /* ‘z’è‚·‚écE‰¡‚ÌÅ‘å‰æ‘f” */
-#define MAX_BRIGHTNESS       255 /* ‘z’è‚·‚éÅ‘åŠK’²’l */
-#define GRAYLEVEL            256 /* ‘z’è‚·‚éŠK’²”(=Å‘åŠK’²’l+1) */
-#define MAX_FILENAME         256 /* ‘z’è‚·‚éƒtƒ@ƒCƒ‹–¼‚ÌÅ‘å’· */
-#define MAX_BUFFERSIZE       256 /* —˜—p‚·‚éƒoƒbƒtƒ@Å‘å’· */
+/* å®šæ•°å®£è¨€ */
+#define MAX_IMAGESIZE      2600 /* æƒ³å®šã™ã‚‹ç¸¦ãƒ»æ¨ªã®æœ€å¤§ç”»ç´ æ•° */
+#define MAX_BRIGHTNESS       255 /* æƒ³å®šã™ã‚‹æœ€å¤§éšèª¿å€¤ */
+#define GRAYLEVEL            256 /* æƒ³å®šã™ã‚‹éšèª¿æ•°(=æœ€å¤§éšèª¿å€¤+1) */
+#define MAX_FILENAME         256 /* æƒ³å®šã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«åã®æœ€å¤§é•· */
+#define MAX_BUFFERSIZE       256 /* åˆ©ç”¨ã™ã‚‹ãƒãƒƒãƒ•ã‚¡æœ€å¤§é•· */
 #define PI 3.14159265359
 #define R2 1.41421356237
 #define LNum 5000
-#define HEADERSIZE 54 /*ƒwƒbƒ_[‚ÌƒTƒCƒY*/
+#define HEADERSIZE 54 /*ãƒ˜ãƒƒãƒ€ãƒ¼ã®ã‚µã‚¤ã‚º*/
 
-/* bmpŒ`®‚Ìƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚ŞŠÖ” */
+/* bmpå½¢å¼ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚€é–¢æ•° */
 unsigned char* readBMP(char file_name[], int* width, int* height) {
 
-	char buffer[MAX_BUFFERSIZE];  /* ƒf[ƒ^“Ç‚İ‚İ—pì‹Æ•Ï” */
-	FILE* fp; /* ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^ */
-	int x, y; /* ƒ‹[ƒv•Ï” */
-	unsigned char* image;/*‰æ‘œ‚ğŠi”[‚·‚éƒ|ƒCƒ“ƒ^*/
-	unsigned char headBuf[HEADERSIZE]; //ƒwƒbƒ_[î•ñæ‚è‚İ
-	unsigned char* bmpdata;           //‰æ‘œƒf[ƒ^1s•ª
-	unsigned int color = 0;           //24bit‚Ì‰æ‘œƒf[ƒ^‚Å‚ ‚é‚©‚Ç‚¤‚©
-	int press = 0;                    //ˆ³k³®
-	int filesize = 0;                 //ƒtƒ@ƒCƒ‹ƒTƒCƒY
-	int real_width;                   //ƒf[ƒ^ã‚Ì1s•ª‚ÌƒoƒCƒg”
+	char buffer[MAX_BUFFERSIZE];  /* ãƒ‡ãƒ¼ã‚¿èª­ã¿è¾¼ã¿ç”¨ä½œæ¥­å¤‰æ•° */
+	FILE* fp; /* ãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚¤ãƒ³ã‚¿ */
+	int x, y; /* ãƒ«ãƒ¼ãƒ—å¤‰æ•° */
+	unsigned char* image;/*ç”»åƒã‚’æ ¼ç´ã™ã‚‹ãƒã‚¤ãƒ³ã‚¿*/
+	unsigned char headBuf[HEADERSIZE]; //ãƒ˜ãƒƒãƒ€ãƒ¼æƒ…å ±å–ã‚Šè¾¼ã¿
+	unsigned char* bmpdata;           //ç”»åƒãƒ‡ãƒ¼ã‚¿1è¡Œåˆ†
+	unsigned int color = 0;           //24bitã®ç”»åƒãƒ‡ãƒ¼ã‚¿ã§ã‚ã‚‹ã‹ã©ã†ã‹
+	int press = 0;                    //åœ§ç¸®æ­£å¼
+	int filesize = 0;                 //ãƒ•ã‚¡ã‚¤ãƒ«ã‚µã‚¤ã‚º
+	int real_width;                   //ãƒ‡ãƒ¼ã‚¿ä¸Šã®1è¡Œåˆ†ã®ãƒã‚¤ãƒˆæ•°
 
-	//ƒwƒbƒ_[ƒtƒ@ƒCƒ‹“Ç‚İ‚İ
+	//ãƒ˜ãƒƒãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿
 
 	errno_t err = fopen_s(&fp, file_name, "rb");
 	if (err != 0) {
-		printf("‚»‚Ì–¼‘O‚Ìƒtƒ@ƒCƒ‹‚Í‘¶İ‚µ‚Ü‚¹‚ñD\n");
+		printf("ãã®åå‰ã®ãƒ•ã‚¡ã‚¤ãƒ«ã¯å­˜åœ¨ã—ã¾ã›ã‚“ï¼\n");
 		exit(1);
 	}
 
-	//ƒwƒbƒ_[ƒtƒ@ƒCƒ‹“Ç‚İ‚İ
+	//ãƒ˜ãƒƒãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿
 	fread(headBuf, sizeof(unsigned char), HEADERSIZE, fp);
 	memcpy(buffer, headBuf, 2);
-	//ƒtƒ@ƒCƒ‹ƒ^ƒCƒv
+	//ãƒ•ã‚¡ã‚¤ãƒ«ã‚¿ã‚¤ãƒ—
 	if (strncmp(buffer, "BM", 2) != 0) {
-		printf("ƒtƒ@ƒCƒ‹ƒ^ƒCƒv‚ªˆá‚¢‚Ü‚·D\n");
+		printf("ãƒ•ã‚¡ã‚¤ãƒ«ã‚¿ã‚¤ãƒ—ãŒé•ã„ã¾ã™ï¼\n");
 		exit(1);
 	}
-	//1‰æ‘f‚ ‚½‚è‚Ìƒf[ƒ^ƒTƒCƒY
+	//1ç”»ç´ ã‚ãŸã‚Šã®ãƒ‡ãƒ¼ã‚¿ã‚µã‚¤ã‚º
 	memcpy(&color, headBuf + 28, sizeof(unsigned int));
-	if (color < 24) {
-		printf("1‰æ‘f‚ ‚½‚è24bit‚Ì‰æ‘œ‚Å‚Í‚ ‚è‚Ü‚¹‚ñD\n");
+	printf("Image bit depth: %d bit\n", color);
+	if (color != 24) {
+		printf("ERROR: Only 24-bit BMP images are supported. (Current image: %d bit)\n", color);
 		exit(1);
 	}
-	//ˆ³kŒ`®
+	//åœ§ç¸®å½¢å¼
 	memcpy(&press, headBuf + 30, sizeof(int));
 	if (press != 0) {
-		printf("ˆ³kŒ`®‚ª–³ˆ³k‚Å‚Í‚ ‚è‚Ü‚¹‚ñD\n");
+		printf("åœ§ç¸®å½¢å¼ãŒç„¡åœ§ç¸®ã§ã¯ã‚ã‚Šã¾ã›ã‚“ï¼\n");
 		exit(1);
 	}
 
-	//‰æ‘œ‚Ì•
+	//ç”»åƒã®å¹…
 	memcpy(width, headBuf + 18, sizeof(int));
-	//‰æ‘œ‚Ìc•
+	//ç”»åƒã®ç¸¦å¹…
 	memcpy(height, headBuf + 22, sizeof(int));
 
-	/* ƒpƒ‰ƒ[ƒ^‚Ì‰æ–Ê‚Ö‚Ì•\¦ */
-	//printf("‰¡‚Ì‰æ‘f” = %d, c‚Ì‰æ‘f” = %d\n", *width, *height);
+	/* ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®ç”»é¢ã¸ã®è¡¨ç¤º */
+	//printf("æ¨ªã®ç”»ç´ æ•° = %d, ç¸¦ã®ç”»ç´ æ•° = %d\n", *width, *height);
 
-	/*s––‚Ì0‚ğŠÜ‚ß‚½ˆês•ª‚Ì’·‚³*/
-	real_width = *width * 3 + *width % 4;
+	/*è¡Œæœ«ã®0ã‚’å«ã‚ãŸä¸€è¡Œåˆ†ã®é•·ã•*/
+	//real_width = *width * 3 + *width % 4;
+	real_width = (((*width * 3) + 3) / 4) * 4;
 
-	filesize = (*height) * real_width + HEADERSIZE; //ƒtƒ@ƒCƒ‹ƒTƒCƒY
-	//ƒtƒ@ƒCƒ‹ƒTƒCƒY
+	filesize = (*height) * real_width + HEADERSIZE; //ãƒ•ã‚¡ã‚¤ãƒ«ã‚µã‚¤ã‚º
+	//ãƒ•ã‚¡ã‚¤ãƒ«ã‚µã‚¤ã‚º
 	memcpy(&filesize, headBuf + 2, sizeof(int));
 	if (filesize != ((*height) * real_width + HEADERSIZE)) {
-		//printf("ƒtƒ@ƒCƒ‹ƒTƒCƒY‚ª‹L˜^‚³‚ê‚Ä‚¢‚é‚à‚Ì‚ÆˆÙ‚È‚è‚Ü‚·D\n");
+		//printf("ãƒ•ã‚¡ã‚¤ãƒ«ã‚µã‚¤ã‚ºãŒè¨˜éŒ²ã•ã‚Œã¦ã„ã‚‹ã‚‚ã®ã¨ç•°ãªã‚Šã¾ã™ï¼\n");
 		//exit(1);
 	}
 
-	//1s•ª‚ÌRGBî•ñ‚ğæ‚Á‚Ä‚­‚é‚½‚ß‚Ìƒoƒbƒtƒ@
+	//1è¡Œåˆ†ã®RGBæƒ…å ±ã‚’å–ã£ã¦ãã‚‹ãŸã‚ã®ãƒãƒƒãƒ•ã‚¡
 	bmpdata = (unsigned char*)malloc(sizeof(unsigned char) * real_width);
 	if (bmpdata == NULL) {
-		printf("malloc1ƒGƒ‰[\n");
+		printf("malloc1ã‚¨ãƒ©ãƒ¼\n");
 		return NULL;
 	}
 
-	//“ü—Í‰æ‘œ‚ğ•Û‘¶‚·‚é‚½‚ß‚Ì—ÌˆæŠm•Û
+	//å…¥åŠ›ç”»åƒã‚’ä¿å­˜ã™ã‚‹ãŸã‚ã®é ˜åŸŸç¢ºä¿
 	image = (unsigned char*)malloc(sizeof(unsigned char) * real_width * (*height));
 	if (image == NULL) {
-		printf("malloc2ƒGƒ‰[\n");
+		printf("malloc2ã‚¨ãƒ©ãƒ¼\n");
 		return NULL;
 	}
 
-	//“Ç‚İ‚İ
+	//èª­ã¿è¾¼ã¿
 	for (y = 0; y < *height; y++) {
-		/*ˆês“Ç‚İ‚İ*/
+		/*ä¸€è¡Œèª­ã¿è¾¼ã¿*/
 		fread(bmpdata, 1, real_width, fp);
 		for (x = 0; x < *width * 3; x++) {
-			/*ƒoƒbƒtƒ@‚©‚ç‰æ‘f’l‚Ì‚İ‚ğæ‚èo‚µimage‚É•Û‘¶*/
+			/*ãƒãƒƒãƒ•ã‚¡ã‹ã‚‰ç”»ç´ å€¤ã®ã¿ã‚’å–ã‚Šå‡ºã—imageã«ä¿å­˜*/
 			image[(*height - y - 1) * (*width) * 3 + x] = bmpdata[x];
 		}
 	}
 
-	//printf("“ü—Íƒtƒ@ƒCƒ‹F %s\n", file_name);
+	//printf("å…¥åŠ›ãƒ•ã‚¡ã‚¤ãƒ«ï¼š %s\n", file_name);
 
 	free(bmpdata);
 
@@ -114,40 +116,41 @@ unsigned char* readBMP(char file_name[], int* width, int* height) {
 }
 
 
-/* bmpŒ`®‚Ìƒtƒ@ƒCƒ‹‚ğo—Í‚·‚éŠÖ” */
+/* bmpå½¢å¼ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‡ºåŠ›ã™ã‚‹é–¢æ•° */
 void writeBMP(char file_name[], unsigned char* image, int width, int height) {
 
-	char buffer[MAX_BUFFERSIZE];  /* ƒf[ƒ^“Ç‚İ‚İ—pì‹Æ•Ï” */
-	FILE* fp; /* ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^ */
-	int x, y, i; /* ƒ‹[ƒv•Ï” */
-	unsigned char headBuf[HEADERSIZE]; //ƒwƒbƒ_[î•ñæ‚è‚İ
-	unsigned char* bmpdata;           //‰æ‘œƒf[ƒ^1s•ª
-	unsigned int color;               //24bit‚Ì‰æ‘œƒf[ƒ^‚Å‚ ‚é‚©‚Ç‚¤‚©
-	unsigned int filesize;            //ƒtƒ@ƒCƒ‹ƒTƒCƒY
-	unsigned int offset;              //ƒIƒtƒZƒbƒg
-	unsigned int headsize;            //ƒwƒbƒ_[ƒTƒCƒY
-	unsigned int planes;              //ƒvƒŒ[ƒ“”
-	int real_width;                   //ƒf[ƒ^ã‚Ì1s•ª‚ÌƒoƒCƒg”
-	char fname[100];                  //o—Íƒtƒ@ƒCƒ‹–¼
+	char buffer[MAX_BUFFERSIZE];  /* ãƒ‡ãƒ¼ã‚¿èª­ã¿è¾¼ã¿ç”¨ä½œæ¥­å¤‰æ•° */
+	FILE* fp; /* ãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚¤ãƒ³ã‚¿ */
+	int x, y, i; /* ãƒ«ãƒ¼ãƒ—å¤‰æ•° */
+	unsigned char headBuf[HEADERSIZE]; //ãƒ˜ãƒƒãƒ€ãƒ¼æƒ…å ±å–ã‚Šè¾¼ã¿
+	unsigned char* bmpdata;           //ç”»åƒãƒ‡ãƒ¼ã‚¿1è¡Œåˆ†
+	unsigned int color;               //24bitã®ç”»åƒãƒ‡ãƒ¼ã‚¿ã§ã‚ã‚‹ã‹ã©ã†ã‹
+	unsigned int filesize;            //ãƒ•ã‚¡ã‚¤ãƒ«ã‚µã‚¤ã‚º
+	unsigned int offset;              //ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+	unsigned int headsize;            //ãƒ˜ãƒƒãƒ€ãƒ¼ã‚µã‚¤ã‚º
+	unsigned int planes;              //ãƒ—ãƒ¬ãƒ¼ãƒ³æ•°
+	int real_width;                   //ãƒ‡ãƒ¼ã‚¿ä¸Šã®1è¡Œåˆ†ã®ãƒã‚¤ãƒˆæ•°
+	char fname[100];                  //å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«å
 
 	strcpy_s(fname, sizeof(fname), file_name);
-	strcat_s(fname, sizeof(fname), ".bmp");  //o—Íƒtƒ@ƒCƒ‹–¼‚ÌŒã‚ë‚ÉŠg’£q‚ğ‚Â‚¯‚é
-	/*ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“*/
+	strcat_s(fname, sizeof(fname), ".bmp");  //å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«åã®å¾Œã‚ã«æ‹¡å¼µå­ã‚’ã¤ã‘ã‚‹
+	/*ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³*/
 	errno_t err = fopen_s(&fp, fname, "wb");
 	if (err != 0) {
-		printf("ƒtƒ@ƒCƒ‹‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñ1D\n");
+		printf("ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚ªãƒ¼ãƒ—ãƒ³ã§ãã¾ã›ã‚“1ï¼\n");
 		exit(1);
 	}
 
-	/*ƒwƒbƒ_[‚É‘‚«‚Şî•ñ‚ÌŒvZ*/
-	real_width = width * 3 + width % 4;       //ƒf[ƒ^ã‚Ì1s•ª‚ÌƒoƒCƒg”
-	filesize = height * real_width + HEADERSIZE; //ƒtƒ@ƒCƒ‹ƒTƒCƒY
-	offset = HEADERSIZE;                       //ƒwƒbƒ_‚ÌƒTƒCƒY
-	headsize = 40;                             //î•ñƒwƒbƒ_‚ÌƒTƒCƒY
-	planes = 1;                                //ƒvƒŒ[ƒ“”
-	color = 24;                                //1‰æ‘f‚ ‚½‚è‚Ìƒf[ƒ^ƒTƒCƒY
+	/*ãƒ˜ãƒƒãƒ€ãƒ¼ã«æ›¸ãè¾¼ã‚€æƒ…å ±ã®è¨ˆç®—*/
+	//real_width = width * 3 + width % 4;       //ãƒ‡ãƒ¼ã‚¿ä¸Šã®1è¡Œåˆ†ã®ãƒã‚¤ãƒˆæ•°
+	real_width = (((width * 3) + 3) / 4) * 4;
+	filesize = height * real_width + HEADERSIZE; //ãƒ•ã‚¡ã‚¤ãƒ«ã‚µã‚¤ã‚º
+	offset = HEADERSIZE;                       //ãƒ˜ãƒƒãƒ€ã®ã‚µã‚¤ã‚º
+	headsize = 40;                             //æƒ…å ±ãƒ˜ãƒƒãƒ€ã®ã‚µã‚¤ã‚º
+	planes = 1;                                //ãƒ—ãƒ¬ãƒ¼ãƒ³æ•°
+	color = 24;                                //1ç”»ç´ ã‚ãŸã‚Šã®ãƒ‡ãƒ¼ã‚¿ã‚µã‚¤ã‚º
 
-	/*ƒwƒbƒ_[•”•ª‚ğƒoƒbƒtƒ@‚É‘‚«‚İ*/
+	/*ãƒ˜ãƒƒãƒ€ãƒ¼éƒ¨åˆ†ã‚’ãƒãƒƒãƒ•ã‚¡ã«æ›¸ãè¾¼ã¿*/
 	headBuf[0] = 'B';
 	headBuf[1] = 'M';
 	memcpy(headBuf + 2, &filesize, 4);
@@ -164,27 +167,27 @@ void writeBMP(char file_name[], unsigned char* image, int width, int height) {
 	for (i = 30; i < HEADERSIZE; i++) {
 		headBuf[i] = 0;
 	}
-	//ƒwƒbƒ_[•”•ª‚ğƒtƒ@ƒCƒ‹‚É‘‚«‚İ
+	//ãƒ˜ãƒƒãƒ€ãƒ¼éƒ¨åˆ†ã‚’ãƒ•ã‚¡ã‚¤ãƒ«ã«æ›¸ãè¾¼ã¿
 	fwrite(headBuf, sizeof(unsigned char), HEADERSIZE, fp);
 
-	//1s•ª‚ÌRGBî•ñ•Û‘¶‚·‚é‚½‚ß‚Ìƒoƒbƒtƒ@
+	//1è¡Œåˆ†ã®RGBæƒ…å ±ä¿å­˜ã™ã‚‹ãŸã‚ã®ãƒãƒƒãƒ•ã‚¡
 	bmpdata = (unsigned char*)malloc(sizeof(unsigned char) * real_width);
 	if (bmpdata == NULL) {
-		printf("malloc1ƒGƒ‰[\n");
+		printf("malloc1ã‚¨ãƒ©ãƒ¼\n");
 		fclose(fp);
 		exit(1);
 	}
-	/*1s‚¸‚Â‘‚«‚İ*/
+	/*1è¡Œãšã¤æ›¸ãè¾¼ã¿*/
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width * 3; x++) {
 			/*
 			switch (x % 3)
 			{
-			case 0: bmpdata[x + 2] = image[(height - y - 1)*width * 3 + x];  //ƒf[ƒ^•”•ª‚ğƒoƒbƒtƒ@‚É‘‚«‚İ
+			case 0: bmpdata[x + 2] = image[(height - y - 1)*width * 3 + x];  //ãƒ‡ãƒ¼ã‚¿éƒ¨åˆ†ã‚’ãƒãƒƒãƒ•ã‚¡ã«æ›¸ãè¾¼ã¿
 				break;
-			case 1:bmpdata[x] = image[(height - y - 1)*width * 3 + x];  //ƒf[ƒ^•”•ª‚ğƒoƒbƒtƒ@‚É‘‚«‚İ
+			case 1:bmpdata[x] = image[(height - y - 1)*width * 3 + x];  //ãƒ‡ãƒ¼ã‚¿éƒ¨åˆ†ã‚’ãƒãƒƒãƒ•ã‚¡ã«æ›¸ãè¾¼ã¿
 				break;
-			case 2:bmpdata[x - 2] = image[(height - y - 1)*width * 3 + x];  //ƒf[ƒ^•”•ª‚ğƒoƒbƒtƒ@‚É‘‚«‚İ
+			case 2:bmpdata[x - 2] = image[(height - y - 1)*width * 3 + x];  //ãƒ‡ãƒ¼ã‚¿éƒ¨åˆ†ã‚’ãƒãƒƒãƒ•ã‚¡ã«æ›¸ãè¾¼ã¿
 				break;
 			}
 			*/
@@ -195,64 +198,64 @@ void writeBMP(char file_name[], unsigned char* image, int width, int height) {
 
 
 		for (x = width * 3; x < real_width; x++) {
-			bmpdata[x] = 0;                              //s––‚Ì0‚ğƒoƒbƒtƒ@‚É‘‚«‚İ
+			bmpdata[x] = 0;                              //è¡Œæœ«ã®0ã‚’ãƒãƒƒãƒ•ã‚¡ã«æ›¸ãè¾¼ã¿
 		}
-		fwrite(bmpdata, sizeof(unsigned char), real_width, fp);    //ƒtƒ@ƒCƒ‹‚Éƒoƒbƒtƒ@‚Ì“à—e‚ğ‘‚«‚Ş
+		fwrite(bmpdata, sizeof(unsigned char), real_width, fp);    //ãƒ•ã‚¡ã‚¤ãƒ«ã«ãƒãƒƒãƒ•ã‚¡ã®å†…å®¹ã‚’æ›¸ãè¾¼ã‚€
 	}
 
-	printf("o—Íƒtƒ@ƒCƒ‹(BMP)F %s\n", fname);
+	printf("å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«(BMP)ï¼š %s\n", fname);
 
 	free(bmpdata);
 	fclose(fp);
 }
 
-/* pgmŒ`®‚Ìƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚ŞŠÖ” */
+/* pgmå½¢å¼ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚€é–¢æ•° */
 unsigned char* readPGM(char file_name[], int* width, int* height) {
 
-	char buffer[MAX_BUFFERSIZE];  /* ƒf[ƒ^“Ç‚İ‚İ—pì‹Æ•Ï” */
-	FILE* fp; /* ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^ */
-	int max_gray; /* Å‘åŠK’²’l */
-	int x, y; /* ƒ‹[ƒv•Ï” */
-	unsigned char* image;/*‰æ‘œ‚ğŠi”[‚·‚éƒ|ƒCƒ“ƒ^*/
+	char buffer[MAX_BUFFERSIZE];  /* ãƒ‡ãƒ¼ã‚¿èª­ã¿è¾¼ã¿ç”¨ä½œæ¥­å¤‰æ•° */
+	FILE* fp; /* ãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚¤ãƒ³ã‚¿ */
+	int max_gray; /* æœ€å¤§éšèª¿å€¤ */
+	int x, y; /* ãƒ«ãƒ¼ãƒ—å¤‰æ•° */
+	unsigned char* image;/*ç”»åƒã‚’æ ¼ç´ã™ã‚‹ãƒã‚¤ãƒ³ã‚¿*/
 
 	errno_t err = fopen_s(&fp, file_name, "rb");
 	if (err != 0) {
-		printf("‚»‚Ì–¼‘O‚Ìƒtƒ@ƒCƒ‹‚Í‘¶İ‚µ‚Ü‚¹‚ñD\n");
+		printf("ãã®åå‰ã®ãƒ•ã‚¡ã‚¤ãƒ«ã¯å­˜åœ¨ã—ã¾ã›ã‚“ï¼\n");
 		exit(1);
 	}
 
-	/* ƒtƒ@ƒCƒ‹ƒ^ƒCƒv(=P5)‚ÌŠm”F */
+	/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚¿ã‚¤ãƒ—(=P5)ã®ç¢ºèª */
 	fgets(buffer, MAX_BUFFERSIZE, fp);
 	if (buffer[0] != 'P' || buffer[1] != '5') {
-		printf("ƒtƒ@ƒCƒ‹‚ÌƒtƒH[ƒ}ƒbƒg‚ª P5 ‚Æ‚ÍˆÙ‚È‚è‚Ü‚·D\n");
+		printf("ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆãŒ P5 ã¨ã¯ç•°ãªã‚Šã¾ã™ï¼\n");
 		exit(1);
 	}
-	/* width[n], height[n] ‚Ì‘ã“üi#‚©‚çn‚Ü‚éƒRƒƒ“ƒg‚Í“Ç‚İ”ò‚Î‚·j */
+	/* width[n], height[n] ã®ä»£å…¥ï¼ˆ#ã‹ã‚‰å§‹ã¾ã‚‹ã‚³ãƒ¡ãƒ³ãƒˆã¯èª­ã¿é£›ã°ã™ï¼‰ */
 	while (*width == 0 || *height == 0) {
 		fgets(buffer, MAX_BUFFERSIZE, fp);
 		if (buffer[0] != '#')
 			sscanf_s(buffer, "%d %d", width, height);
 	}
-	/* max_gray ‚Ì‘ã“üi#‚©‚çn‚Ü‚éƒRƒƒ“ƒg‚Í“Ç‚İ”ò‚Î‚·j */
+	/* max_gray ã®ä»£å…¥ï¼ˆ#ã‹ã‚‰å§‹ã¾ã‚‹ã‚³ãƒ¡ãƒ³ãƒˆã¯èª­ã¿é£›ã°ã™ï¼‰ */
 	max_gray = 0;
 	while (max_gray == 0) {
 		fgets(buffer, MAX_BUFFERSIZE, fp);
 		if (buffer[0] != '#')
 			sscanf_s(buffer, "%d", &max_gray);
 	}
-	/* ƒpƒ‰ƒ[ƒ^‚Ì‰æ–Ê‚Ö‚Ì•\¦ */
-	printf("‰¡‚Ì‰æ‘f” = %d, c‚Ì‰æ‘f” = %d\n", *width, *height);
-	printf("Å‘åŠK’²’l = %d\n", max_gray);
+	/* ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®ç”»é¢ã¸ã®è¡¨ç¤º */
+	printf("æ¨ªã®ç”»ç´ æ•° = %d, ç¸¦ã®ç”»ç´ æ•° = %d\n", *width, *height);
+	printf("æœ€å¤§éšèª¿å€¤ = %d\n", max_gray);
 	if (*width > MAX_IMAGESIZE || *height > MAX_IMAGESIZE) {
-		printf("‘z’è’l %d x %d ‚ğ’´‚¦‚Ä‚¢‚Ü‚·D\n",
+		printf("æƒ³å®šå€¤ %d x %d ã‚’è¶…ãˆã¦ã„ã¾ã™ï¼\n",
 			MAX_IMAGESIZE, MAX_IMAGESIZE);
-		printf("‚à‚¤­‚µ¬‚³‚È‰æ‘œ‚ğg‚Á‚Ä‰º‚³‚¢D\n");
+		printf("ã‚‚ã†å°‘ã—å°ã•ãªç”»åƒã‚’ä½¿ã£ã¦ä¸‹ã•ã„ï¼\n");
 		exit(1);
 	}
 	if (max_gray != MAX_BRIGHTNESS) {
-		printf("Å‘åŠK’²’l‚ª•s“KØ‚Å‚·D\n");  exit(1);
+		printf("æœ€å¤§éšèª¿å€¤ãŒä¸é©åˆ‡ã§ã™ï¼\n");  exit(1);
 	}
-	/* ‰æ‘œƒf[ƒ^‚ğ“Ç‚İ‚ñ‚Å‰æ‘œ—p”z—ñ‚É‘ã“ü‚·‚é */
+	/* ç”»åƒãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚“ã§ç”»åƒç”¨é…åˆ—ã«ä»£å…¥ã™ã‚‹ */
 	image = (unsigned char*)malloc((*width) * (*height) * sizeof(unsigned char));
 
 	for (y = 0; y < *height; y++) {
@@ -262,36 +265,36 @@ unsigned char* readPGM(char file_name[], int* width, int* height) {
 	}
 
 	fclose(fp);
-	printf("‰æ‘œ‚Í³í‚É“Ç‚İ‚Ü‚ê‚Ü‚µ‚½D\n");
+	printf("ç”»åƒã¯æ­£å¸¸ã«èª­ã¿è¾¼ã¾ã‚Œã¾ã—ãŸï¼\n");
 
 	return image;
 }
 
-/* pgmŒ`®‚Ìƒtƒ@ƒCƒ‹‚ğo—Í‚·‚éŠÖ” */
+/* pgmå½¢å¼ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‡ºåŠ›ã™ã‚‹é–¢æ•° */
 void writePGM(char file_name[], unsigned char* image, int width, int height) {
 
-	FILE* fp; /* ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^ */
-	int x, y; /* ƒ‹[ƒv•Ï” */
+	FILE* fp; /* ãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚¤ãƒ³ã‚¿ */
+	int x, y; /* ãƒ«ãƒ¼ãƒ—å¤‰æ•° */
 	char name[10] = ".pgm";
-	char fname[100];              //o—Íƒtƒ@ƒCƒ‹–¼
+	char fname[100];              //å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«å
 
 	strcpy_s(fname, sizeof(fname), file_name);
 	strcat_s(fname, sizeof(fname), name);
 	errno_t err = fopen_s(&fp, fname, "wb");
 	if (err != 0) {
-		printf("ƒtƒ@ƒCƒ‹‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñ2D\n");
+		printf("ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚ªãƒ¼ãƒ—ãƒ³ã§ãã¾ã›ã‚“2ï¼\n");
 		exit(1);
 	}
 
-	/* ƒtƒ@ƒCƒ‹¯•Êq "P5" ‚ğæ“ª‚Éo—Í‚·‚é */
+	/* ãƒ•ã‚¡ã‚¤ãƒ«è­˜åˆ¥å­ "P5" ã‚’å…ˆé ­ã«å‡ºåŠ›ã™ã‚‹ */
 	fputs("P5\n", fp);
-	/* # ‚Ån‚Ü‚éƒRƒƒ“ƒgsiÈ—ª‰Â”\j */
+	/* # ã§å§‹ã¾ã‚‹ã‚³ãƒ¡ãƒ³ãƒˆè¡Œï¼ˆçœç•¥å¯èƒ½ï¼‰ */
 	fputs("# Created by IrfanView\n", fp);
-	/* ‰æ‘œ‚Ì‰¡•Cc•‚Ìo—Í */
+	/* ç”»åƒã®æ¨ªå¹…ï¼Œç¸¦å¹…ã®å‡ºåŠ› */
 	fprintf(fp, "%d %d\n", width, height);
-	/* Å‘åŠK’²’l‚Ìo—Í */
+	/* æœ€å¤§éšèª¿å€¤ã®å‡ºåŠ› */
 	fprintf(fp, "%d\n", MAX_BRIGHTNESS);
-	/* ‰æ‘œƒf[ƒ^‚Ìo—Í */
+	/* ç”»åƒãƒ‡ãƒ¼ã‚¿ã®å‡ºåŠ› */
 
 
 	for (y = 0; y < height; y++) {
@@ -301,35 +304,35 @@ void writePGM(char file_name[], unsigned char* image, int width, int height) {
 	}
 
 	fclose(fp);
-	printf("‰æ‘œ‚Í³í‚Éo—Í‚³‚ê‚Ü‚µ‚½D\n");
+	printf("ç”»åƒã¯æ­£å¸¸ã«å‡ºåŠ›ã•ã‚Œã¾ã—ãŸï¼\n");
 }
 
-/* ˜AŒ‹—Ìˆæˆê‚Âˆê‚Â‚ğpgmŒ`®‚Ìƒtƒ@ƒCƒ‹‚ğo—Í‚·‚éŠÖ” */
+/* é€£çµé ˜åŸŸä¸€ã¤ä¸€ã¤ã‚’pgmå½¢å¼ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‡ºåŠ›ã™ã‚‹é–¢æ•° */
 void writePGM2(char file_name[], unsigned int* image, int width, int height, int n) {
 
-	FILE* fp; /* ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^ */
-	int x, y, i, a; /* ƒ‹[ƒv•Ï” */
+	FILE* fp; /* ãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚¤ãƒ³ã‚¿ */
+	int x, y, i, a; /* ãƒ«ãƒ¼ãƒ—å¤‰æ•° */
 	unsigned char max = 0, min = 255;
 	char filename[200], name[10] = ".pgm";
-	char fname[100];              //o—Íƒtƒ@ƒCƒ‹–¼
+	char fname[100];              //å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«å
 
 	for (i = 1; i <= n; i++) {
 		sprintf_s(filename, sizeof(filename), "%s%d%s", file_name, i, name);
 		errno_t err = fopen_s(&fp, filename, "wb");
 		if (err != 0) {
-			printf("ƒtƒ@ƒCƒ‹‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñ3D\n");
+			printf("ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚ªãƒ¼ãƒ—ãƒ³ã§ãã¾ã›ã‚“3ï¼\n");
 			exit(1);
 		}
 
-		/* ƒtƒ@ƒCƒ‹¯•Êq "P5" ‚ğæ“ª‚Éo—Í‚·‚é */
+		/* ãƒ•ã‚¡ã‚¤ãƒ«è­˜åˆ¥å­ "P5" ã‚’å…ˆé ­ã«å‡ºåŠ›ã™ã‚‹ */
 		fputs("P5\n", fp);
-		/* # ‚Ån‚Ü‚éƒRƒƒ“ƒgsiÈ—ª‰Â”\j */
+		/* # ã§å§‹ã¾ã‚‹ã‚³ãƒ¡ãƒ³ãƒˆè¡Œï¼ˆçœç•¥å¯èƒ½ï¼‰ */
 		fputs("# Created by IrfanView\n", fp);
-		/* ‰æ‘œ‚Ì‰¡•Cc•‚Ìo—Í */
+		/* ç”»åƒã®æ¨ªå¹…ï¼Œç¸¦å¹…ã®å‡ºåŠ› */
 		fprintf(fp, "%d %d\n", width, height);
-		/* Å‘åŠK’²’l‚Ìo—Í */
+		/* æœ€å¤§éšèª¿å€¤ã®å‡ºåŠ› */
 		fprintf(fp, "%d\n", MAX_BRIGHTNESS);
-		/* ‰æ‘œƒf[ƒ^‚Ìo—Í */
+		/* ç”»åƒãƒ‡ãƒ¼ã‚¿ã®å‡ºåŠ› */
 
 		for (y = 0; y < height; y++) {
 			for (x = 0; x < width; x++) {
@@ -345,18 +348,18 @@ void writePGM2(char file_name[], unsigned int* image, int width, int height, int
 		fclose(fp);
 
 	}
-	printf("‰æ‘œ‚Í³í‚Éo—Í‚³‚ê‚Ü‚µ‚½D\n");
+	printf("ç”»åƒã¯æ­£å¸¸ã«å‡ºåŠ›ã•ã‚Œã¾ã—ãŸï¼\n");
 }
 
-/*ƒJƒ‰[‰æ‘œ‚ğƒOƒŒ[ƒXƒP[ƒ‹‚É•ÏŠ·‚·‚éŠÖ”*/
+/*ã‚«ãƒ©ãƒ¼ç”»åƒã‚’ã‚°ãƒ¬ãƒ¼ã‚¹ã‚±ãƒ¼ãƒ«ã«å¤‰æ›ã™ã‚‹é–¢æ•°*/
 unsigned char* RGBtoGray(unsigned char* image_in, int width, int height) {
 	int x, y;
-	/*o—Í‰æ‘œ‚ğŠi”[‚·‚éƒ|ƒCƒ“ƒ^*/
+	/*å‡ºåŠ›ç”»åƒã‚’æ ¼ç´ã™ã‚‹ãƒã‚¤ãƒ³ã‚¿*/
 	unsigned char* image_out;
 
-	/*o—Í‰æ‘œ‚Ì—ÌˆæŠm•Û*/
+	/*å‡ºåŠ›ç”»åƒã®é ˜åŸŸç¢ºä¿*/
 	image_out = (unsigned char*)malloc(width * height * sizeof(unsigned char));
-	/*o—Íƒtƒ@ƒCƒ‹‚É‰æ‘f’l‚ğ‘‚«‚İ*/
+	/*å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«ã«ç”»ç´ å€¤ã‚’æ›¸ãè¾¼ã¿*/
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
 			image_out[y * width + x] = (image_in[y * width * 3 + x * 3 + 0] + image_in[y * width * 3 + x * 3 + 1] + image_in[y * width * 3 + x * 3 + 2]) / 3;
@@ -370,25 +373,25 @@ unsigned char* RGBtoGray(unsigned char* image_in, int width, int height) {
 
 
 
-/* ”»•Ê•ªÍ–@‚ÉŠî‚Ã‚«‚µ‚«‚¢’l‚ğ‘I‘ğ‚·‚éŠÖ” */
+/* åˆ¤åˆ¥åˆ†ææ³•ã«åŸºã¥ãã—ãã„å€¤ã‚’é¸æŠã™ã‚‹é–¢æ•° */
 int OtsuMethod(unsigned int* label, int n, unsigned char* image_in, int width, int height) {
-	long int hist[256] = { 0 };    /* ƒqƒXƒgƒOƒ‰ƒ€—p‚PŸŒ³”z—ñ */
+	long int hist[256] = { 0 };    /* ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ç”¨ï¼‘æ¬¡å…ƒé…åˆ— */
 	int x, y, i, thvalue = 0;
 	int t, sum = 0, sum1 = 0, sum2 = 0;
-	double db, db_max = 0.0;//db:ƒNƒ‰ƒXŠÔ•ªU,db:ƒNƒ‰ƒXŠÔ•ªU‚ÌÅ‘å’l
-	double mt;//mt:‘S‰æ‘f‚Ì•½‹Ï’l
-	int w1 = 0, w2 = 0, m1, m2; //w1:•‰æ‘fƒNƒ‰ƒX‚Ì‰æ‘f” w2 : •‰æ‘fƒNƒ‰ƒX‚Ì‰æ‘f” m1:•‰æ‘fƒNƒ‰ƒX‚Ì•½‹Ï’l,m2:”’‰æ‘fƒNƒ‰ƒX‚Ì•½‹Ï’l,
+	double db, db_max = 0.0;//db:ã‚¯ãƒ©ã‚¹é–“åˆ†æ•£,db:ã‚¯ãƒ©ã‚¹é–“åˆ†æ•£ã®æœ€å¤§å€¤
+	double mt;//mt:å…¨ç”»ç´ ã®å¹³å‡å€¤
+	int w1 = 0, w2 = 0, m1, m2; //w1:é»’ç”»ç´ ã‚¯ãƒ©ã‚¹ã®ç”»ç´ æ•° w2 : é»’ç”»ç´ ã‚¯ãƒ©ã‚¹ã®ç”»ç´ æ•° m1:é»’ç”»ç´ ã‚¯ãƒ©ã‚¹ã®å¹³å‡å€¤,m2:ç™½ç”»ç´ ã‚¯ãƒ©ã‚¹ã®å¹³å‡å€¤,
 
-	//ƒqƒXƒgƒOƒ‰ƒ€‚Ìì¬
+	//ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã®ä½œæˆ
 	for (y = 0; y < height; y++)
 		for (x = 0; x < width; x++)
-			if (label[y * width + x] >= 1 && label[y * width + x] <= n)hist[image_in[x + width * y]]++; /* —İÏ‚ğ‚P‘‰Á */
-	//if(label[y*width+x] == n)hist[image_in[x + width*y]]++; /* —İÏ‚ğ‚P‘‰Á */
+			if (label[y * width + x] >= 1 && label[y * width + x] <= n)hist[image_in[x + width * y]]++; /* ç´¯ç©ã‚’ï¼‘å¢—åŠ  */
+	//if(label[y*width+x] == n)hist[image_in[x + width*y]]++; /* ç´¯ç©ã‚’ï¼‘å¢—åŠ  */
 
 
 	for (t = 0; t < 256; t++) {
 
-		//•½‹Ï’l
+		//å¹³å‡å€¤
 		sum = 0; sum1 = 0; sum2 = 0; w1 = 0; w2 = 0;
 		for (i = 0; i < 256; i++) {
 			sum += i;
@@ -407,11 +410,11 @@ int OtsuMethod(unsigned int* label, int n, unsigned char* image_in, int width, i
 		m2 = sum2 / (256 - t);
 		//printf("%3d: m1= %d m2= %d \n", t,m1, m2);
 
-		//ƒNƒ‰ƒXŠÔ•ªU
+		//ã‚¯ãƒ©ã‚¹é–“åˆ†æ•£
 		db = (double)((w1 * (m1 - mt) * (m1 - mt) + w2 * (m2 - mt) * (m2 - mt)) / (w1 + w2));
 
 		//printf("%3d: db= %f \n\n",t,db);
-		//ƒNƒ‰ƒXŠÔ•ªU‚ªÅ‘å‚Ìt‚ğ‹‚ß‚é
+		//ã‚¯ãƒ©ã‚¹é–“åˆ†æ•£ãŒæœ€å¤§ã®tã‚’æ±‚ã‚ã‚‹
 		if (db > db_max) {
 			db_max = db;
 			thvalue = t;
@@ -422,16 +425,16 @@ int OtsuMethod(unsigned int* label, int n, unsigned char* image_in, int width, i
 	return thvalue;
 }
 
-/*‚µ‚«‚¢’l‚ÉŠî‚Ã‚«‰æ‘œ‚ğ2’l‰»‚·‚éŠÖ”*/
+/*ã—ãã„å€¤ã«åŸºã¥ãç”»åƒã‚’2å€¤åŒ–ã™ã‚‹é–¢æ•°*/
 unsigned char* binarization(unsigned char* image_in, int width, int height, int t) {
 	int x, y;
-	/*o—Í‰æ‘œ‚ğŠi”[‚·‚éƒ|ƒCƒ“ƒ^*/
+	/*å‡ºåŠ›ç”»åƒã‚’æ ¼ç´ã™ã‚‹ãƒã‚¤ãƒ³ã‚¿*/
 	unsigned char* image_out;
 
-	/*o—Í‰æ‘œ‚Ì—ÌˆæŠm•Û*/
+	/*å‡ºåŠ›ç”»åƒã®é ˜åŸŸç¢ºä¿*/
 	image_out = (unsigned char*)malloc(width * height * sizeof(unsigned char));
 
-	/* ‰æ‘œ‚ğ‚Q’l‰» */
+	/* ç”»åƒã‚’ï¼’å€¤åŒ– */
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
 			if (image_in[x + width * y] <= t) image_out[x + width * y] = 0;
@@ -443,7 +446,7 @@ unsigned char* binarization(unsigned char* image_in, int width, int height, int 
 
 }
 
-/*–ÊÏ‚ğ‹‚ß‚éŠÖ”*/
+/*é¢ç©ã‚’æ±‚ã‚ã‚‹é–¢æ•°*/
 void calArea(unsigned int* label, inputTablet* tablet, int n, int width, int height) {
 	int i, x, y;
 	inputTablet* p;
@@ -475,7 +478,7 @@ void calPerimeter(int* lx, int* ly, double* perimeter, int n) {
 	perimeter[n] *= 0.95;
 }
 
-/*üˆÍ’·‚ğ‹‚ß‚éŠÖ”2*/
+/*å‘¨å›²é•·ã‚’æ±‚ã‚ã‚‹é–¢æ•°2*/
 void boder_s(unsigned char* image, int ys, int xs, int ds, int* ly, int* lx, int ln, int* lp, int width, int height) {
 	static char yp[8] = { 0, -1, -1, -1, 0, 1, 1, 1 }, xp[8] = { 1, 1, 0, -1, -1, -1, 0, 1 };
 	int y, x, yw, xw, nb, n, nc, flag = 0;
@@ -520,7 +523,7 @@ void boder_s(unsigned char* image, int ys, int xs, int ds, int* ly, int* lx, int
 	//printf("(xw,yw)=(%d,%d) (x,y)=(%d,%d) n=%d ds=%d nb=%d\n", xw, yw, x, y, n, ds, nb);
 }
 
-/*üˆÍ’·‚ğ‹‚ß‚éŠÖ”1*/
+/*å‘¨å›²é•·ã‚’æ±‚ã‚ã‚‹é–¢æ•°1*/
 void border(unsigned char* image, int* ly, int* lx, int ln, int* lp, int width, int height) {
 	int y, x, y1, x1, ds = 0, nc;
 
@@ -557,7 +560,7 @@ void border(unsigned char* image, int* ly, int* lx, int ln, int* lp, int width, 
 }
 
 
-/*’¼Œa“x‚ğ‹‚ß‚éŠÖ”*/
+/*ç›´å¾„åº¦ã‚’æ±‚ã‚ã‚‹é–¢æ•°*/
 void caldiameter(double* diameter, double* perimeter, int n) {
 	int i;
 	for (i = 1; i <= n; i++) {
@@ -565,7 +568,7 @@ void caldiameter(double* diameter, double* perimeter, int n) {
 	}
 }
 
-/*‰~Œ`“x‚ğ‹‚ß‚éŠÖ”*/
+/*å††å½¢åº¦ã‚’æ±‚ã‚ã‚‹é–¢æ•°*/
 void calCircularity(double* circularity, int* area, double* perimeter, int n) {
 	int i;
 
@@ -575,10 +578,10 @@ void calCircularity(double* circularity, int* area, double* perimeter, int n) {
 
 }
 
-/* —ÖŠsü‚Ì‚İ‚Ì‰æ‘œ‚ğì‚éŠÖ” */
+/* è¼ªéƒ­ç·šã®ã¿ã®ç”»åƒã‚’ä½œã‚‹é–¢æ•° */
 void makerinkakuimage(unsigned char* image, int width, int height, int* ly, int* lx) {
 
-	int i = 0; /* ƒ‹[ƒv•Ï” */
+	int i = 0; /* ãƒ«ãƒ¼ãƒ—å¤‰æ•° */
 
 	while (1) {
 		image[ly[i] * width + lx[i]] = 255;
@@ -588,7 +591,7 @@ void makerinkakuimage(unsigned char* image, int width, int height, int* ly, int*
 
 }
 
-/* ùÜ‚ÌF‚ğƒqƒXƒgƒOƒ‰ƒ€‚Å•\‚·ŠÖ” test */
+/* éŒ å‰¤ã®è‰²ã‚’ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã§è¡¨ã™é–¢æ•° test */
 void makeRGBHist(unsigned char* image_in, int width, int height, unsigned int* label, int rHist[], int gHist[], int bHist[])
 {
 	int x, y, lnum = 0;
@@ -606,14 +609,14 @@ void makeRGBHist(unsigned char* image_in, int width, int height, unsigned int* l
 }
 
 
-/* FƒqƒXƒgƒOƒ‰ƒ€‚ğƒƒ‚’ ‚É‘‚­  test  */
+/* è‰²ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã‚’ãƒ¡ãƒ¢å¸³ã«æ›¸ã  test  */
 void writeRGBHist(char filename[], int rHist[], int gHist[], int bHist[])
 {
 	int i, j;
 	FILE* f;
 	errno_t err = fopen_s(&f, filename, "w");
 	if (err != 0) {
-		printf("ƒtƒ@ƒCƒ‹‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñ4D\n");
+		printf("ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚ªãƒ¼ãƒ—ãƒ³ã§ãã¾ã›ã‚“4ï¼\n");
 		exit(1);
 	}
 
@@ -635,14 +638,14 @@ void writeRGBHist(char filename[], int rHist[], int gHist[], int bHist[])
 	fclose(f);
 }
 
-/*qsort—p”äŠrŠÖ”*/
+/*qsortç”¨æ¯”è¼ƒé–¢æ•°*/
 int compare_int(const void* a, const void* b)
 {
 	return *(int*)a - *(int*)b;
 }
 
 
-/*Šeƒ‰ƒxƒ‹‚É‘Î‚µ‚ÄRGB‚Ì’†‰›’l‚ğ‹‚ß‚éŠÖ”*/
+/*å„ãƒ©ãƒ™ãƒ«ã«å¯¾ã—ã¦RGBã®ä¸­å¤®å€¤ã‚’æ±‚ã‚ã‚‹é–¢æ•°*/
 void calRGBcolor(unsigned int* label, unsigned char* bmp, int width, int height, const int n, inputTablet* tablet) {
 	int x, y, i, j, a, * R, * G, * B, sumr, sumg, sumb, labelNum;
 	inputTablet* p;
@@ -658,7 +661,7 @@ void calRGBcolor(unsigned int* label, unsigned char* bmp, int width, int height,
 		R = (int*)malloc(sizeof(int) * (labelNum + 1));
 		G = (int*)malloc(sizeof(int) * (labelNum + 1));
 		B = (int*)malloc(sizeof(int) * (labelNum + 1));
-		/*‰Šú‰»*/
+		/*åˆæœŸåŒ–*/
 		for (j = 0; j <= labelNum; j++) {
 			R[j] = 0;
 			G[j] = 0;
@@ -668,7 +671,7 @@ void calRGBcolor(unsigned int* label, unsigned char* bmp, int width, int height,
 		sumr = 0;
 		sumg = 0;
 		sumb = 0;
-		/*RGB‚ğ‚»‚ê‚¼‚ê‚Ì”z—ñ‚É•Û‘¶*/
+		/*RGBã‚’ãã‚Œãã‚Œã®é…åˆ—ã«ä¿å­˜*/
 		for (y = 0; y < height; y++) {
 			for (x = 0; x < width; x++) {
 				if (label[x + y * (width)] == i) {
@@ -679,15 +682,15 @@ void calRGBcolor(unsigned int* label, unsigned char* bmp, int width, int height,
 				}
 			}
 		}
-		/*ƒ\[ƒg*/
+		/*ã‚½ãƒ¼ãƒˆ*/
 		qsort(R, a, sizeof(int), compare_int);
 		qsort(G, a, sizeof(int), compare_int);
 		qsort(B, a, sizeof(int), compare_int);
-		/*’†‰›’l*/
+		/*ä¸­å¤®å€¤*/
 		(tablet + i)->Rmed = R[a / 2];
 		(tablet + i)->Gmed = G[a / 2];
 		(tablet + i)->Bmed = B[a / 2];
-		/*•½‹Ï’l*/
+		/*å¹³å‡å€¤*/
 		for (j = 0; j < a; j++) {
 			sumr += R[j];
 			sumg += G[j];
@@ -696,7 +699,7 @@ void calRGBcolor(unsigned int* label, unsigned char* bmp, int width, int height,
 		(tablet + i)->Rave = (double)sumr / a;
 		(tablet + i)->Gave = (double)sumg / a;
 		(tablet + i)->Bave = (double)sumb / a;
-		/*•ªU’l*/
+		/*åˆ†æ•£å€¤*/
 		sumr = 0;
 		sumg = 0;
 		sumb = 0;
@@ -709,7 +712,7 @@ void calRGBcolor(unsigned int* label, unsigned char* bmp, int width, int height,
 		//dis[i * 3 + 1] = (double)sumg / a;
 		//dis[i * 3 + 2] = (double)sumb / a;
 
-		// ƒƒ‚ƒŠ‰ğ•ú
+		// ãƒ¡ãƒ¢ãƒªè§£æ”¾
 		free(R);
 		free(G);
 		free(B);
@@ -718,7 +721,7 @@ void calRGBcolor(unsigned int* label, unsigned char* bmp, int width, int height,
 
 
 
-/*qsort—p”äŠrŠÖ”*/
+/*qsortç”¨æ¯”è¼ƒé–¢æ•°*/
 int compare_double(const void* p, const void* q)
 {
 	if (*(double*)p > *(double*)q) return 1;
@@ -726,7 +729,7 @@ int compare_double(const void* p, const void* q)
 	return 0;
 }
 
-/*’†SÀ•W‚ğ‹‚ß‚éƒvƒƒOƒ‰ƒ€*/
+/*ä¸­å¿ƒåº§æ¨™ã‚’æ±‚ã‚ã‚‹ãƒ—ãƒ­ã‚°ãƒ©ãƒ */
 void calCenter(int* center, double* diameter, int n, unsigned int* label, int width, int height) {
 	int i, x0, y0, x1, y1, x, y, start;
 	for (i = 1; i <= n; i++) {
@@ -756,38 +759,38 @@ void calCenter(int* center, double* diameter, int n, unsigned int* label, int wi
 	}
 }
 
-//ƒ}ƒXƒ^[ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚ŞŠÖ”
+//ãƒã‚¹ã‚¿ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚€é–¢æ•°
 /**/
 masterData* readMaster(int* masterNum, int* vectorNum, char filename[]) {
 	int i, j;
 	FILE* masterFile;
-	masterData* master = NULL; // NULL‰Šú‰»
+	masterData* master = NULL; // NULLåˆæœŸåŒ–
 
-	// V‚µ‚¢ƒ}ƒXƒ^[ƒf[ƒ^‚ğì¬‚µA‰Šú‰»‚·‚é‹¤’ÊƒƒWƒbƒN
-	// CŒ¾Œê‚Ì•W€“I‚ÈŠÖ”‚ğg‚¤‚½‚ßAƒ‰ƒ€ƒ_®‚Å‚Í‚È‚­•W€“I‚ÈŠÖ”‚Æ‚µ‚Ä‹Lq‚µ‚Ü‚·
-	// (‚±‚ÌƒR[ƒhƒuƒƒbƒN‚ÍAmasterData\‘¢‘Ì‚ª’è‹`‚³‚ê‚Ä‚¢‚éƒtƒ@ƒCƒ‹“à‚ÉŠÜ‚Ü‚ê‚é•K—v‚ª‚ ‚è‚Ü‚·)
+	// æ–°ã—ã„ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚’ä½œæˆã—ã€åˆæœŸåŒ–ã™ã‚‹å…±é€šãƒ­ã‚¸ãƒƒã‚¯
+	// Cè¨€èªã®æ¨™æº–çš„ãªé–¢æ•°ã‚’ä½¿ã†ãŸã‚ã€ãƒ©ãƒ ãƒ€å¼ã§ã¯ãªãæ¨™æº–çš„ãªé–¢æ•°ã¨ã—ã¦è¨˜è¿°ã—ã¾ã™
+	// (ã“ã®ã‚³ãƒ¼ãƒ‰ãƒ–ãƒ­ãƒƒã‚¯ã¯ã€masterDataæ§‹é€ ä½“ãŒå®šç¾©ã•ã‚Œã¦ã„ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«å†…ã«å«ã¾ã‚Œã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™)
 
-	// ƒwƒ‹ƒp[ŠÖ”‚ğƒCƒ“ƒ‰ƒCƒ“‚ÅƒVƒ~ƒ…ƒŒ[ƒg‚·‚é‚½‚ß‚ÌƒuƒƒbƒN
-	// ÀÛ‚É‚ÍA‚±‚Ìˆ—‚ğ if (err != 0) ‚Æ else/else if ‚Ì•ªŠò‚É“WŠJ‚µ‚Ü‚·B
+	// ãƒ˜ãƒ«ãƒ‘ãƒ¼é–¢æ•°ã‚’ã‚¤ãƒ³ãƒ©ã‚¤ãƒ³ã§ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ãƒˆã™ã‚‹ãŸã‚ã®ãƒ–ãƒ­ãƒƒã‚¯
+	// å®Ÿéš›ã«ã¯ã€ã“ã®å‡¦ç†ã‚’ if (err != 0) ã¨ else/else if ã®åˆ†å²ã«å±•é–‹ã—ã¾ã™ã€‚
 
 	errno_t err = fopen_s(&masterFile, filename, "r");
 
-	// 1. ƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚È‚¢ê‡ (err != 0) ‚Ü‚½‚Í 2. ƒtƒ@ƒCƒ‹‚ª‘¶İ‚·‚é‚ª“à—e‚ª•s³E‹ó‚Ìê‡
+	// 1. ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ãªã„å ´åˆ (err != 0) ã¾ãŸã¯ 2. ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã™ã‚‹ãŒå†…å®¹ãŒä¸æ­£ãƒ»ç©ºã®å ´åˆ
 	if (err != 0 || (err == 0 && fscanf_s(masterFile, "%d%d", masterNum, vectorNum) != 2)) {
 
-		// 2. ‚ÌƒP[ƒX‚Åƒtƒ@ƒCƒ‹‚ğŠJ‚¯‚½ê‡‚Í•Â‚¶‚é
+		// 2. ã®ã‚±ãƒ¼ã‚¹ã§ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‘ãŸå ´åˆã¯é–‰ã˜ã‚‹
 		if (err == 0) {
 			fclose(masterFile);
-			printf("ƒ}ƒXƒ^[ƒtƒ@ƒCƒ‹(%s)‚Í‘¶İ‚·‚é‚ª“à—e‚ª‹ó‚Ü‚½‚Í•s³‚ÈŒ`®‚Å‚·BV‹Kì¬‚µ‚Ü‚·B\n", filename);
+			printf("ãƒã‚¹ã‚¿ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«(%s)ã¯å­˜åœ¨ã™ã‚‹ãŒå†…å®¹ãŒç©ºã¾ãŸã¯ä¸æ­£ãªå½¢å¼ã§ã™ã€‚æ–°è¦ä½œæˆã—ã¾ã™ã€‚\n", filename);
 		}
 
-		// V‚µ‚¢ƒ}ƒXƒ^[ƒf[ƒ^‚ğì¬‚·‚é (‹¤’ÊƒƒWƒbƒN)
+		// æ–°ã—ã„ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚’ä½œæˆã™ã‚‹ (å…±é€šãƒ­ã‚¸ãƒƒã‚¯)
 		*masterNum = 0;
-		*vectorNum = TheNumberOfClass + DivisionNumber; // TheNumberOfClass‚ÆDivisionNumber‚Íheader.h‚Å’è‹`‚³‚ê‚Ä‚¢‚é‚Í‚¸
+		*vectorNum = TheNumberOfClass + DivisionNumber; // TheNumberOfClassã¨DivisionNumberã¯header.hã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹ã¯ãš
 		master = (masterData*)malloc(sizeof(masterData));
-		if (master == NULL) { printf("mallocƒGƒ‰[\n"); exit(1); }
+		if (master == NULL) { printf("mallocã‚¨ãƒ©ãƒ¼\n"); exit(1); }
 
-		// master[0]‚Ì‰Šú‰»
+		// master[0]ã®åˆæœŸåŒ–
 		master[0].id = 0;
 		for (j = 0; j < 100; j++) { master[0].pillName[j] = 0; }
 		master[0].numOfPills = 0;
@@ -798,16 +801,16 @@ masterData* readMaster(int* masterNum, int* vectorNum, char filename[]) {
 			master[0].Gmed[j] = 0.0; master[0].Bmed[j] = 0.0;
 		}
 		master[0].v = (double*)malloc(sizeof(double) * (*vectorNum));
-		if (master[0].v == NULL) { printf("mallocƒGƒ‰[\n"); exit(1); }
+		if (master[0].v == NULL) { printf("mallocã‚¨ãƒ©ãƒ¼\n"); exit(1); }
 		for (j = 0; j < *vectorNum; j++) { master[0].v[j] = 0.0; }
 
 		return master;
 	}
 
-	// 3. ƒtƒ@ƒCƒ‹‚ª‘¶İ‚µAƒwƒbƒ_[î•ñ (masterNum, vectorNum) ‚ª“Ç‚İ‚ß‚½ê‡ (Šù‘¶‚Ìƒtƒ@ƒCƒ‹“Ç‚İ‚İˆ—)
+	// 3. ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ã€ãƒ˜ãƒƒãƒ€ãƒ¼æƒ…å ± (masterNum, vectorNum) ãŒèª­ã¿è¾¼ã‚ãŸå ´åˆ (æ—¢å­˜ã®ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿å‡¦ç†)
 
-	master = (masterData*)malloc(sizeof(masterData) * (*masterNum + 100)); // ­‚µ‘½‚ß‚ÉŠm•Û
-	if (master == NULL) { printf("mallocƒGƒ‰[\n"); exit(1); }
+	master = (masterData*)malloc(sizeof(masterData) * (*masterNum + 100)); // å°‘ã—å¤šã‚ã«ç¢ºä¿
+	if (master == NULL) { printf("mallocã‚¨ãƒ©ãƒ¼\n"); exit(1); }
 
 	for (i = 0; i <= *masterNum; i++) {
 		master[i].id = 0;
@@ -826,7 +829,7 @@ masterData* readMaster(int* masterNum, int* vectorNum, char filename[]) {
 			master[i].Bmed[j] = 0.0;
 		}
 		master[i].v = (double*)malloc(sizeof(double) * (*vectorNum));
-		if (master[i].v == NULL) { printf("mallocƒGƒ‰[\n"); exit(1); }
+		if (master[i].v == NULL) { printf("mallocã‚¨ãƒ©ãƒ¼\n"); exit(1); }
 		for (j = 0; j < *vectorNum; j++) {
 			master[i].v[j] = 0.0;
 		}
@@ -869,7 +872,7 @@ masterData* readMaster(int* masterNum, int* vectorNum, char filename[]) {
 	return master;
 }
 
-//ƒ}ƒXƒ^[ƒtƒ@ƒCƒ‹‚É‘‚«‚ŞŠÖ”
+//ãƒã‚¹ã‚¿ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã«æ›¸ãè¾¼ã‚€é–¢æ•°
 void writeMaster(int masterNum, int vectorNum, masterData* master, char filename[]) {
 	int i, j;
 	FILE* masterFile;
@@ -877,7 +880,7 @@ void writeMaster(int masterNum, int vectorNum, masterData* master, char filename
 
 	errno_t err = fopen_s(&masterFile, filename, "w");
 	if (err != 0) {
-		printf("ƒtƒ@ƒCƒ‹‚ğƒI[ƒvƒ“‚Å‚«‚Ü‚¹‚ñ5D\n");
+		printf("ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚ªãƒ¼ãƒ—ãƒ³ã§ãã¾ã›ã‚“5ï¼\n");
 		exit(1);
 	}
 
@@ -920,13 +923,14 @@ void writeMaster(int masterNum, int vectorNum, masterData* master, char filename
 
 	fclose(masterFile);
 }
-
-/*ùÜ‚Ì’†S‚©‚ç—ÖŠs‚Ü‚Å‚ğ“¯S‰~ó‚Éa•ªŠ„‚µ‚½‚ÌŠe•ªŠ„‚É‘¶İ‚·‚éƒGƒbƒW‰æ‘f‚Ì•p“x‚ğ‹‚ß‚éŠÖ”*/
+/*éŒ å‰¤ã®ä¸­å¿ƒã‹ã‚‰è¼ªéƒ­ã¾ã§ã‚’åŒå¿ƒå††çŠ¶ã«aåˆ†å‰²ã—ãŸæ™‚ã®å„åˆ†å‰²ã«å­˜åœ¨ã™ã‚‹ã‚¨ãƒƒã‚¸ç”»ç´ ã®é »åº¦ã‚’æ±‚ã‚ã‚‹é–¢æ•°*/
 void calDiividedEdgepixelFrequency(inputTablet* tablet, unsigned int* label, unsigned char* strengthImage, double* strength, int width, int height, int n, int flag) {
 	int x, y, i, j, lnum;
 	long long sum = 0;
-	int* x_edge, * y_edge, radius, x_min, y_min, x_max, y_max; //x_edge:ˆó‚Ì’†SxÀ•W    y_edge:ˆó‚Ì’†SyÀ•W  radius:”¼Œa
+	int* x_edge, * y_edge, radius, x_min, y_min, x_max, y_max; //x_edge:åˆ»å°ã®ä¸­å¿ƒxåº§æ¨™    y_edge:åˆ»å°ã®ä¸­å¿ƒyåº§æ¨™  radius:åŠå¾„
 	double MinimumAreaRadius, a, c, * temp;
+
+
 	inputTablet* p;
 	p = tablet;
 
@@ -934,7 +938,7 @@ void calDiividedEdgepixelFrequency(inputTablet* tablet, unsigned int* label, uns
 	x_edge = (int*)malloc(sizeof(int) * (n + 1));
 	y_edge = (int*)malloc(sizeof(int) * (n + 1));
 
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	for (i = 0; i <= n; i++) {
 		for (j = 0; j < DivisionNumber; j++) {
 			temp[i * DivisionNumber + j] = 0;
@@ -945,7 +949,7 @@ void calDiividedEdgepixelFrequency(inputTablet* tablet, unsigned int* label, uns
 		y_edge[i] = 0;
 	}
 
-	//ùÜ‚Ì’†SÀ•W‚©‚çŒ©‚½ƒGƒbƒW‰æ‘f‚Ì•p“x
+	//éŒ å‰¤ã®ä¸­å¿ƒåº§æ¨™ã‹ã‚‰è¦‹ãŸã‚¨ãƒƒã‚¸ç”»ç´ ã®é »åº¦
 	if (flag == 0) {
 		for (y = 0; y < height; y++) {
 			for (x = 0; x < width; x++) {
@@ -967,7 +971,7 @@ void calDiividedEdgepixelFrequency(inputTablet* tablet, unsigned int* label, uns
 		}
 	}
 	else {
-		//’Ç‰ÁFˆó‚Ì’†SÀ•W‚©‚çŒ©‚½ƒGƒbƒW‰æ‘f‚Ì•p“x
+		//è¿½åŠ ï¼šåˆ»å°ã®ä¸­å¿ƒåº§æ¨™ã‹ã‚‰è¦‹ãŸã‚¨ãƒƒã‚¸ç”»ç´ ã®é »åº¦
 		for (i = 1; i <= n; i++) {
 			x_min = 3000; x_max = 0;
 			y_min = 3000; y_max = 0;
@@ -983,7 +987,7 @@ void calDiividedEdgepixelFrequency(inputTablet* tablet, unsigned int* label, uns
 					}
 				}
 			}
-			if (x_min > x_max) { // ˆó‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡
+			if (x_min > x_max) { // åˆ»å°ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸå ´åˆ
 				x_edge[i] = (p + i)->x;
 				y_edge[i] = (p + i)->y;
 			}
@@ -994,7 +998,7 @@ void calDiividedEdgepixelFrequency(inputTablet* tablet, unsigned int* label, uns
 				else x_edge[i] = x_max - radius;
 			}
 
-			//if (i != 0)printf("–ò:%d      x:%d  y:%d\n", i, x_edge[i], y_edge[i]);
+			//if (i != 0)printf("è–¬:%d      x:%d  y:%d\n", i, x_edge[i], y_edge[i]);
 		}
 		//printf("\n\n\n");
 
@@ -1004,7 +1008,7 @@ void calDiividedEdgepixelFrequency(inputTablet* tablet, unsigned int* label, uns
 					a = 0.0; c = 0.0; lnum = label[y * width + x];
 					MinimumAreaRadius = (double)(((p + lnum)->diameter / 2.0) * ((double)WEIGHT / 100.0)) / DivisionNumber;
 
-					//printf("–ò:%d      x:%d  y:%d\n", lnum, x_edge[lnum], y_edge[lnum]);
+					//printf("è–¬:%d      x:%d  y:%d\n", lnum, x_edge[lnum], y_edge[lnum]);
 
 					a = (x - x_edge[lnum]) * (x - x_edge[lnum]) + (y - y_edge[lnum]) * (y - y_edge[lnum]);
 					c = sqrt(a);
@@ -1027,7 +1031,7 @@ void calDiividedEdgepixelFrequency(inputTablet* tablet, unsigned int* label, uns
 			sum += (long long)temp[i * DivisionNumber + j] * temp[i * DivisionNumber + j];
 		}
 		double sqrt_sum = sqrt((double)sum);
-		if (sqrt_sum == 0.0) { // ƒ[ƒœZ‚ğ‰ñ”ğ
+		if (sqrt_sum == 0.0) { // ã‚¼ãƒ­é™¤ç®—ã‚’å›é¿
 			for (j = 0; j < DivisionNumber; j++) {
 				(p + i)->diividedEdgepixelFrequency[j] = 0.0;
 			}
@@ -1039,22 +1043,22 @@ void calDiividedEdgepixelFrequency(inputTablet* tablet, unsigned int* label, uns
 		}
 	}
 
-	// ƒƒ‚ƒŠ‰ğ•ú
+	// ãƒ¡ãƒ¢ãƒªè§£æ”¾
 	free(temp);
 	free(x_edge);
 	free(y_edge);
 }
 
 
-/*“ü—Í”z—ñ‚Ì•½‹ÏA•ê•ªUC’†‰›’l‚ğ‹‚ß‚éŠÖ”*/
+/*å…¥åŠ›é…åˆ—ã®å¹³å‡ã€æ¯åˆ†æ•£ï¼Œä¸­å¤®å€¤ã‚’æ±‚ã‚ã‚‹é–¢æ•°*/
 void calAvePVMedi(double* data, double* ave, double* PV, double* medi, int n) {
 	int i;
 	double* sort, sum = 0, ss = 0;
 
-	if (n <= 0) return; // ƒf[ƒ^‚ª‚È‚¢ê‡‚Í‰½‚à‚µ‚È‚¢
+	if (n <= 0) return; // ãƒ‡ãƒ¼ã‚¿ãŒãªã„å ´åˆã¯ä½•ã‚‚ã—ãªã„
 
 	sort = (double*)malloc(sizeof(double) * n);
-	if (sort == NULL) { printf("mallocƒGƒ‰[\n"); exit(1); }
+	if (sort == NULL) { printf("mallocã‚¨ãƒ©ãƒ¼\n"); exit(1); }
 
 
 	for (i = 0; i < n; i++) {
@@ -1075,7 +1079,7 @@ void calAvePVMedi(double* data, double* ave, double* PV, double* medi, int n) {
 	}
 
 	if (n > 1) {
-		ss = sum / (n - 1); // •W–{•ªU
+		ss = sum / (n - 1); // æ¨™æœ¬åˆ†æ•£
 	}
 	else {
 		ss = 0;
@@ -1083,11 +1087,11 @@ void calAvePVMedi(double* data, double* ave, double* PV, double* medi, int n) {
 
 	*PV = ss;
 
-	// ƒƒ‚ƒŠ‰ğ•ú
+	// ãƒ¡ãƒ¢ãƒªè§£æ”¾
 	free(sort);
 }
 
-/*ƒ}ƒXƒ^[ƒf[ƒ^‚É“ü—Í‰æ‘œ‚Ìî•ñ‚ğ’Ç‰Á‚·‚é*/
+/*ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã«å…¥åŠ›ç”»åƒã®æƒ…å ±ã‚’è¿½åŠ ã™ã‚‹*/
 void addMaster(inputTablet* tablet, masterData* master, int* masterNum, int n, char pillName[]) {
 	double* data, ave = 0, pv = 0, med = 0, sum;
 	int i, j;
@@ -1096,13 +1100,13 @@ void addMaster(inputTablet* tablet, masterData* master, int* masterNum, int n, c
 
 	p = tablet;
 	data = (double*)malloc(sizeof(double) * n);
-	if (data == NULL) { printf("mallocƒGƒ‰[\n"); exit(1); }
+	if (data == NULL) { printf("mallocã‚¨ãƒ©ãƒ¼\n"); exit(1); }
 
 	for (i = 0; i < n; i++) {
 		data[i] = 0;
 	}
 
-	// V‚µ‚¢ƒ}ƒXƒ^[ƒf[ƒ^‚ÌŠi”[æƒ|ƒCƒ“ƒ^
+	// æ–°ã—ã„ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã®æ ¼ç´å…ˆãƒã‚¤ãƒ³ã‚¿
 	currentMaster = &master[*masterNum];
 
 	currentMaster->id = *masterNum;
@@ -1188,9 +1192,9 @@ void addMaster(inputTablet* tablet, masterData* master, int* masterNum, int n, c
 		currentMaster->v[i + DivisionNumber] = sum / (double)n;
 	}
 
-	// ¡‰ñ‚Ìˆ—‚Åƒ}ƒXƒ^[ƒf[ƒ^‚ª1Œ’Ç‰Á‚³‚ê‚½‚Ì‚ÅA‘”‚ğƒCƒ“ƒNƒŠƒƒ“ƒg
+	// ä»Šå›ã®å‡¦ç†ã§ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ãŒ1ä»¶è¿½åŠ ã•ã‚ŒãŸã®ã§ã€ç·æ•°ã‚’ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆ
 	(*masterNum)++;
 
-	// ƒƒ‚ƒŠ‰ğ•ú
+	// ãƒ¡ãƒ¢ãƒªè§£æ”¾
 	free(data);
 }

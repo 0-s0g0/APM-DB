@@ -1,34 +1,34 @@
-/*
-ƒ}ƒXƒ^ƒf[ƒ^ì¬—pƒvƒƒOƒ‰ƒ€
+ï»¿/*
+ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ä½œæˆç”¨ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
 */
 
-#include <opencv2/opencv.hpp> 
+#include <opencv2/opencv.hpp>
 
 #include<stdio.h>
 #include<math.h>
-#include"pgmBmp.h"  /* ŠK’²‰æ‘œ—pƒ‰ƒCƒuƒ‰ƒŠ‚ÌƒCƒ“ƒNƒ‹[ƒh */
-#include"labeling.h"  /* ƒ‰ƒxƒŠƒ“ƒO—pƒ‰ƒCƒuƒ‰ƒŠ‚ÌƒCƒ“ƒNƒ‹[ƒh */
-#include"edgeDetectFiltering.h"/*ƒGƒbƒWŒŸoƒtƒBƒ‹ƒ^ˆ——pƒ‰ƒCƒuƒ‰ƒŠ‚ÌƒCƒ“ƒNƒ‹[ƒh*/
-#include"hsilib.h"/*hsi—pƒ‰ƒCƒuƒ‰ƒŠ‚ÌƒCƒ“ƒNƒ‹[ƒh*/
+#include"pgmBmp.h"  /* éšèª¿ç”»åƒç”¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã®ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ */
+#include"labeling.h"  /* ãƒ©ãƒ™ãƒªãƒ³ã‚°ç”¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã®ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ */
+#include"edgeDetectFiltering.h"/*ã‚¨ãƒƒã‚¸æ¤œå‡ºãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°ç”¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã®ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰*/
+#include"hsilib.h"/*hsiç”¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã®ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰*/
 #include"header.h"
 
 int main(int argc, char* argv[])
 {
-	printf("startB\n");
+	printf("startã€‚\n");
 	FILE* fp_test;
 	if (fopen_s(&fp_test, "test.txt", "w") != 0) {
-		printf("ƒeƒXƒgƒtƒ@ƒCƒ‹‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B\n");
+		printf("ãƒ†ã‚¹ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚\n");
 	}
 	else {
-		fprintf(fp_test, "ƒtƒ@ƒCƒ‹‘‚«‚İƒeƒXƒg¬Œ÷I\n");
+		fprintf(fp_test, "ãƒ•ã‚¡ã‚¤ãƒ«æ›¸ãè¾¼ã¿ãƒ†ã‚¹ãƒˆæˆåŠŸ!\n");
 		fclose(fp_test);
-		printf("test.txt ‚ğì¬‚µ‚Ü‚µ‚½B\n");
+		printf("test.txt ãŒä½œæˆã•ã‚Œã¾ã—ãŸã€‚\n");
 	}
-	unsigned char* inputPgm, * inputBmp, * gray, * strengthImage, * image, * output, * ai, * BilateralImage; /*input:“ü—Í‰æ‘œ gray:”Z’W‰æ‘œ  BilateralImage:ƒoƒCƒ‰ƒeƒ‰ƒ‹ƒtƒBƒ‹ƒ^ˆ—Œã‚Ì‰æ‘œ*/
-	unsigned int* label, * relabel; //ƒ‰ƒxƒ‹‰æ‘œ
-	int width, height, masterNum, vectorNum, n, x, y, i, j; /*width:“ü—Í‰æ‘œ‚Ì‰¡• height:“ü—Í‰æ‘œ‚Ìc• n:ùÜ”*/
-	char fileNameInBmp[100], fileNameOut[100]; /*file_name_in:“ü—Í‰æ‘œ‚Ìƒtƒ@ƒCƒ‹‚Ì–¼‘O file_name_out : o—Í‰æ‘œ‚Ìƒtƒ@ƒCƒ‹‚Ì–¼‘O*/
-	char inputPath[] = "../../image2/bmp/"; //“ü—Í‰æ‘œ‚ÌƒpƒX
+	unsigned char* inputPgm, * inputBmp, * gray, * strengthImage, * image, * output, * ai, * BilateralImage; /*input:å…¥åŠ›ç”»åƒ gray:æ¿ƒæ·¡ç”»åƒ  BilateralImage:ãƒã‚¤ãƒ©ãƒ†ãƒ©ãƒ«ãƒ•ã‚£ãƒ«ã‚¿å‡¦ç†å¾Œã®ç”»åƒ*/
+	unsigned int* label, * relabel; //ãƒ©ãƒ™ãƒ«ç”»åƒ
+	int width, height, masterNum, vectorNum, n, x, y, i, j; /*width:å…¥åŠ›ç”»åƒã®æ¨ªå¹… height:å…¥åŠ›ç”»åƒã®ç¸¦å¹… n:éŒ å‰¤æ•°*/
+	char fileNameInBmp[100], fileNameOut[100]; /*file_name_in:å…¥åŠ›ç”»åƒã®ãƒ•ã‚¡ã‚¤ãƒ«ã®åå‰ file_name_out : å‡ºåŠ›ç”»åƒã®ãƒ•ã‚¡ã‚¤ãƒ«ã®åå‰*/
+	char inputPath[] = "../../image2/bmp/"; //å…¥åŠ›ç”»åƒã®ãƒ‘ã‚¹
 	inputTablet* tablet;
 	masterData* master;
 	int fx[3][3] = { { 0, 0, 0 }, { 0, -1, 1 }, { 0, 0, 0 } };
@@ -38,53 +38,53 @@ int main(int argc, char* argv[])
 	FILE* fp, * fpStrengthHist;
 
 
-	//ˆø”ƒGƒ‰[ƒ`ƒFƒbƒN
+	//å¼•æ•°ã‚¨ãƒ©ãƒ¼ãƒã‚§ãƒƒã‚¯
 	if (argc != 4) {
-		printf("ˆø”‚ğ³‚µ‚­“ü—Í‚µ‚Ä‚­‚¾‚³‚¢.\n");
+		printf("å¼•æ•°ã‚’æ­£ã—ãå…¥åŠ›ã—ã¦ãã ã•ã„.\n");
 		exit(1);
 	}
 
 	master = 0;
-	//ƒ}ƒXƒ^[ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚Ş
+	//ãƒã‚¹ã‚¿ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã¿
 	master = readMaster(&masterNum, &vectorNum, argv[3]);
 
-	// readMaster‚ª¸”s‚µ‚½ê‡‚ÌƒGƒ‰[ƒ`ƒFƒbƒN‚ğ‚æ‚è‹ï‘Ì“I‚É‚·‚é
+	// readMasterãŒå¤±æ•—ã—ãŸå ´åˆã®ã‚¨ãƒ©ãƒ¼ãƒã‚§ãƒƒã‚¯ã‚’ã‚ˆã‚Šå…·ä½“çš„ã«è¡Œã†
 	if (master == NULL) {
-		printf("ƒGƒ‰[: ƒ}ƒXƒ^[ƒtƒ@ƒCƒ‹ (%s) ‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B\n", argv[3]);
-		printf("ƒtƒ@ƒCƒ‹‚ª‘¶İ‚·‚é‚©A‚Ü‚½‚ÍƒpƒX‚ª³‚µ‚¢‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢B\n");
+		printf("ã‚¨ãƒ©ãƒ¼: ãƒã‚¹ã‚¿ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ« (%s) ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸã€‚\n", argv[3]);
+		printf("ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã™ã‚‹ã‹ã€ã¾ãŸã¯ãƒ‘ã‚¹ãŒæ­£ã—ã„ã‹ç¢ºèªã—ã¦ãã ã•ã„ã€‚\n");
 		exit(1);
 	}
 
-	//width,height‚Ì‰Šú‰»
+	//width,heightã®åˆæœŸåŒ–
 	width = 0;
 	height = 0;
 
-	/* “ü—Í‰æ‘œ‚ğƒtƒ@ƒCƒ‹‚©‚ç“Ç‚İ‚Ş */
+	/* å…¥åŠ›ç”»åƒã‚’ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰èª­ã¿è¾¼ã¿ */
 	inputBmp = readBMP(argv[1], &width, &height);
-	// š’Ç‰Á: readBMP‚ª¸”s‚µ‚½ê‡‚ÌƒGƒ‰[ƒ`ƒFƒbƒN
+	// æ–°è¿½åŠ : readBMPãŒå¤±æ•—ã—ãŸå ´åˆã®ã‚¨ãƒ©ãƒ¼ãƒã‚§ãƒƒã‚¯
 	if (inputBmp == NULL) {
-		printf("ƒGƒ‰[: “ü—ÍBMPƒtƒ@ƒCƒ‹ (%s) ‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B\n", argv[1]);
-		printf("ƒtƒ@ƒCƒ‹‚ª‘¶İ‚·‚é‚©A‚Ü‚½‚ÍƒpƒX‚ª³‚µ‚¢‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢B\n");
+		printf("ã‚¨ãƒ©ãƒ¼: å…¥åŠ›BMPãƒ•ã‚¡ã‚¤ãƒ« (%s) ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸã€‚\n", argv[1]);
+		printf("ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã™ã‚‹ã‹ã€ã¾ãŸã¯ãƒ‘ã‚¹ãŒæ­£ã—ã„ã‹ç¢ºèªã—ã¦ãã ã•ã„ã€‚\n");
 		exit(1);
 	}
-	//’Ç‰Á(test)FinputBmp‚ª³‚µ‚­ì¬‚³‚ê‚Ä‚¢‚é‚©Šm”F‚·‚é‚½‚ß‚ÉinputBmp‚ğ•\¦
+	//è¿½åŠ (test):inputBmpãŒæ­£ã—ãä½œæˆã•ã‚Œã¦ã„ã‚‹ã‹ç¢ºèªã™ã‚‹ãŸã‚ã«inputBmpã‚’è¡¨ç¤º
 	//writeBMP(argv[4], inputBmp, width, height);
 
-	//RGB‚ğgray‰æ‘œ‚É•ÏŠ·
+	//RGBã‚’grayç”»åƒã«å¤‰æ›
 	gray = RGBtoGray(inputBmp, width, height);
 	sprintf_s(fileNameOut, "./write/pgm/%s_01_gray", argv[2]);
 	writePGM(fileNameOut, gray, width, height);
-	/*‚µ‚«‚¢’l‚ÉŠî‚Ã‚«‰æ‘œ‚ğ2’l‰»‚·‚é*/
+	/*ã—ãã„å€¤ã«åŸºã¥ãç”»åƒã‚’2å€¤åŒ–ã™ã‚‹*/
 	inputPgm = binarization(gray, width, height, BinarizationNum);
 	sprintf_s(fileNameOut, "./write/pgm/%s_02_binarization", argv[2]);
 	writePGM(fileNameOut, inputPgm, width, height);
-	/*—ÌˆæŠm•Û*/
+	/*é ˜åŸŸç¢ºä¿*/
 	label = (unsigned int*)malloc(sizeof(unsigned int) * width * height);
-	/*ƒ‰ƒxƒŠƒ“ƒOˆ—*/
+	/*ãƒ©ãƒ™ãƒªãƒ³ã‚°å‡¦ç†*/
 	n = labeling(inputPgm, label, width, height);
 	n = deleteSmallArea(label, n, width, height, deleteSmallAreaNum);
 	//printf("n=%d",n);
-	/*—ÌˆæŠm•Û*/
+	/*é ˜åŸŸç¢ºä¿*/
 	tablet = (inputTablet*)malloc(sizeof(inputTablet) * (n + 1));
 	for (i = 0; i <= n; i++) {
 		tablet[i].x = 0;
@@ -106,21 +106,21 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	//Äƒ‰ƒxƒŠƒ“ƒO‰»
+	//å†ãƒ©ãƒ™ãƒªãƒ³ã‚°å‡¦ç†
 	relabel = reLabeling(label, width, height, n, tablet, inputBmp);
 
-	//RGB‚ğgray‰æ‘œ‚É•ÏŠ·
+	//RGBã‚’grayç”»åƒã«å¤‰æ›
 	gray = RGBtoGray(inputBmp, width, height);
 	sprintf_s(fileNameOut, "./write/pgm/%s_01_gray2", argv[2]);
 	writePGM(fileNameOut, gray, width, height);
 
-	/*–ÊÏ*/
+	/*é¢ç©*/
 	calArea(relabel, tablet, n, width, height);
 
 	//RGB
 	calRGBcolor(relabel, inputBmp, width, height, n, tablet);
 
-	/*‰Šú‰»*/
+	/*é ˜åŸŸç¢ºä¿*/
 	strength = (double*)malloc(sizeof(double) * width * height);
 	direction = (double*)malloc(sizeof(double) * width * height);
 	strengthHist = (int*)malloc(sizeof(int) * (n + 1) * STRENGTHMAX);
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
 		bHist[i] = 0;
 	}
 
-	/*’Ç‰ÁFƒoƒCƒ‰ƒeƒ‰ƒ‹ƒtƒBƒ‹ƒ^‚ğgray‰æ‘œ‚É‘Î‚µ‚Äs‚¤*/
+	/*è¿½åŠ :ãƒã‚¤ãƒ©ãƒ†ãƒ©ãƒ«ãƒ•ã‚£ãƒ«ã‚¿ã‚’grayç”»åƒã«å¯¾ã—ã¦è¡Œã†*/
 	Bilateral(gray, width, height, BilateralImage);
 	sprintf_s(fileNameOut, "./write/pgm/%s_03_bilateral", argv[2]);
 	writePGM(fileNameOut, BilateralImage, width, height);
@@ -151,38 +151,38 @@ int main(int argc, char* argv[])
 
 
 
-	//Œù”z‚Ì‹­‚³‚Æ•ûŒü‚ğ‹‚ß‚é
+	//å‹¾é…ã®å¼·åº¦ã¨æ–¹å‘ã‚’æ±‚ã‚ã‚‹
 	caSlope(BilateralImage, relabel, n, width, height, fx, fy, strength, direction);
 
-	//‰Šú‰»
+	//é ˜åŸŸç¢ºä¿
 	for (i = 0; i <= n; i++) {
 		for (j = 0; j < STRENGTHMAX; j++) {
 			strengthHist[i * STRENGTHMAX + j] = 0.0;
 		}
 	}
 
-	// ùÜã‚ÌƒJƒ‰[ƒqƒXƒgƒOƒ‰ƒ€‚ğì¬‚·‚é
-	// relabel: ƒ‰ƒxƒ‹‰æ‘œ(“ü—Í)
+	// éŒ å‰¤ä¸Šã®ã‚«ãƒ©ãƒ¼ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã‚’ä½œæˆã™ã‚‹
+	// relabel: ãƒ©ãƒ™ãƒ«ç”»åƒ(å…¥åŠ›)
 	makeRGBHist(inputBmp, width, height, relabel, rHist, gHist, bHist);
 
-	//Œù”z‹­‚³ƒqƒXƒgƒOƒ‰ƒ€‚ğì¬‚·‚é
-	// tablet: ùÜî•ñŠÇ—\‘¢‘Ì(“ü—Í)
-	// n: ùÜ‚ÌŒÂ”(“ü—Í)
-	// strengthHist: Œù”z‹­‚³ƒqƒXƒgƒOƒ‰ƒ€(o—Í)
+	//å‹¾é…å¼·åº¦ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã‚’ä½œæˆã™ã‚‹
+	// tablet: éŒ å‰¤æƒ…å ±ç®¡ç†æ§‹é€ ä½“(å…¥åŠ›)
+	// n: éŒ å‰¤ã®å€‹æ•°(å…¥åŠ›)
+	// strengthHist: å‹¾é…å¼·åº¦ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ (å‡ºåŠ›)
 	makeStrengthHist(strength, tablet, strengthHist, relabel, width, height, n);
 
-	//Œù”z‹­‚³ƒqƒXƒgƒOƒ‰ƒ€‚Ì‚µ‚«‚¢’l‚ğ‹‚ß‚µ‚«‚¢’l‚ğ“K—p‚µ‚½‹­‚³‰æ‘œ‚ğì¬‚·‚é
+	//å‹¾é…å¼·åº¦ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã®ã—ãã„å€¤ã‚’æ±‚ã‚ã—ãã„å€¤ã‚’é©ç”¨ã—ãŸç”»åƒã‚’ä½œæˆã™ã‚‹
 	reMakeStrengthImage(strengthHist, relabel, width, height, n, tablet, areaOfEdge, strength, strengthImage);
 	sprintf_s(fileNameOut, "./write/pgm/%s_04_strength_image", argv[2]);
 	writePGM(fileNameOut, strengthImage, width, height);
 
-	/*’Ç‰ÁFCanny‚ğ—p‚¢‚½ˆó‚Ì•ûŒüƒqƒXƒgƒOƒ‰ƒ€‹y‚Ñ‹­‚³ƒqƒXƒgƒOƒ‰ƒ€‚Ìì¬*/
+	/*è¿½åŠ :Cannyã‚’ç”¨ã„ãŸå¼·åº¦ã®æ–¹å‘ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ãŠã‚ˆã³å¼·åº¦ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã®ä½œæˆ*/
 	//CannyStrengthImage(BilateralImage, relabel, width, height, n, tablet, areaOfEdge,strengthImage);
 
-	//’Ç‰Á(test)Fˆó‚Ì•ûŒüƒxƒNƒgƒ‹‚ğHSI‚ÌH‚Å•\Œ»‚µA‰æ‘œ‚Æ‚µ‚Äo—Í‚·‚é
+	//è¿½åŠ (test):å¼·åº¦ã®æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã‚’HSIç©ºé–“ã§è¡¨ç¾ã—ã€ç”»åƒã¨ã—ã¦å‡ºåŠ›ã™ã‚‹
 	//test = (double*)malloc(sizeof(double)*width*height);
 	//output = (unsigned char*)malloc(sizeof(unsigned char)*width*height*3);
-	///*HSI—p”z—ñ‰Šú‰»*/
+	///*HSIç”¨é…åˆ—åˆæœŸåŒ–*/
 	//
 	//s = (double *)malloc(sizeof(double)*width*height);
 	//ai = (unsigned char*)malloc(sizeof(unsigned char)*width*height);
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
 	//	for (x = 0; x < width; x++){
 	//		s[y*width + x] = 1.0;
 	//		ai[y*width + x] = 255;
-	//		
+	//
 	//	}
 	//}
 	//for (y = 0; y < height; y++){
@@ -203,13 +203,13 @@ int main(int argc, char* argv[])
 	//		}
 	//	}
 	//}
-	///*Œù”z‚Ì•ûŒü‚ğ‰æ‘œ‚É‚·‚é*/
+	///*å‹¾é…ã®æ–¹å‘ã‚’ç”»åƒã«ã™ã‚‹*/
 	//output = HSItoRGB(width, height, test, s, ai);
 
-	////’Ç‰Á(test)FŒù”z‚Ì•ûŒü‰æ‘œ‚ğo—Í‚·‚é
+	////è¿½åŠ (test):å‹¾é…ã®æ–¹å‘ç”»åƒã‚’å‡ºåŠ›ã™ã‚‹
 	//writeBMP(argv[4], output, width, height);
 
-	//‰Šú‰»
+	//é ˜åŸŸç¢ºä¿
 	for (i = 0; i <= n; i++) {
 		for (j = 0; j < TheNumberOfClass; j++) {
 			directionHist0[i * TheNumberOfClass + j] = 0;
@@ -218,23 +218,23 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	//ˆó‚Ì•”•ª‚Ì‚İ‚ğ’Šo‚µ‚½•ûŒüƒqƒXƒgƒOƒ‰ƒ€‚ğì¬‚·‚é
+	//åˆ»å°ã®æ–¹å‘ã®ã¿ã‚’æŠ½å‡ºã—æ–¹å‘ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã‚’ä½œæˆã™ã‚‹
 	makeMarkingDirectionHist(direction, strengthImage, strength, tablet, directionHist0, relabel, width, height, n);
 
 
-	//’Ç‰Á(test)FdirectionHist0‚ª 0`1‚Ì”ÍˆÍ‚É³‹K‰»‚³‚ê‚Ä‚¢‚é‚©Šm‚©‚ß‚é‚½‚ß‚É•\¦
+	//è¿½åŠ (test):directionHist0ãŒ 0~1ç¯„å›²ã«æ­£è¦åŒ–ã•ã‚Œã¦ã„ã‚‹ã‹ç¢ºã‹ã‚ã‚‹ãŸã‚ã«è¡¨ç¤º
 	/*for (i = 1; i <= n; i++) {
 		for (j = 0; j < TheNumberOfClass; j++) {
 			printf("directionHist0:%lf\n", directionHist0[i * TheNumberOfClass + (int)j]);
 		}
 	}*/
 
-	////’Ç‰Á(test)F‰º‹L‚Ì‰æ‘œ‚ğ.bmp‚Åo—Í‚·‚é
+	////è¿½åŠ (test):åˆ»å°ã®ç”»åƒã‚’.bmpã§å‡ºåŠ›ã™ã‚‹
 	//writePGM(argv[5], gray, width, height);
 	/*writePGM(argv[6], BilateralImage, width, height);
 	writePGM(argv[7], strengthImage, width, height);*/
 
-	//’Ç‰Á(test)FƒJƒ‰[‰æ‘œA”Z’W‰æ‘œAƒoƒCƒ‰ƒeƒ‰ƒ‹ˆ—Œã‚Ì‰æ‘œA“ñ’l‰»ˆ—Œã‚Ì‰æ‘œ‚ğ•\¦‚·‚é
+	//è¿½åŠ (test):ã‚«ãƒ©ãƒ¼ç”»åƒã€æ¿ƒæ·¡ç”»åƒã€ãƒã‚¤ãƒ©ãƒ†ãƒ©ãƒ«å‡¦ç†å¾Œã®ç”»åƒã€äºŒå€¤åŒ–å‡¦ç†å¾Œã®ç”»åƒã‚’è¡¨ç¤ºã™ã‚‹
 	//IplImage *inImg, *inImg_colar, *outImg, *nitika;
 	////int x, y;
 
@@ -283,27 +283,27 @@ int main(int argc, char* argv[])
 	//cvReleaseImage(&nitika);
 
 
-	//©•ª‚ÌcŒÂ‰ñ‚è‚ÌŠp“x‚à©•ª‚É‰ÁZ‚·‚é
+	//ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã®è§’åº¦ã‚’å·¦å›ã‚Šã«åŠ ç®—ã™ã‚‹
 	//remakeDirectionHist(directionHist0, directionHist1, n, 1);
 
 
-	//•ûŒüƒqƒXƒgƒOƒ‰ƒ€‚ÌÅ‘å“x”‚ÌŠK‹‰‚ğ0‚É‚ ‚í‚¹‚ÄƒqƒXƒgƒOƒ‰ƒ€‚ğì¬
+	//æ–¹å‘ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã®æœ€å¤§åº¦æ•°ã®éšèª¿ã‚’0ã«åˆã‚ã›ã¦ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã‚’ä½œæˆ
 	changeStartPoint(directionHist0, directionHist2, tablet, n);
 
 	int flag = 0;
-	/*ùÜ‚Ì’†S‚©‚ç—ÖŠs‚Ü‚Å‚ğ“¯S‰~ó‚Éa•ªŠ„‚µ‚½‚ÌŠe•ªŠ„‚É‘¶İ‚·‚éƒGƒbƒW‰æ‘f‚Ì•p“x‚ğ‹‚ß‚éŠÖ”*/
+	/*éŒ å‰¤ã®ä¸­å¿ƒã‹ã‚‰è¼ªéƒ­ã¾ã§ã‚’åŒå¿ƒå††çŠ¶aåˆ†å‰²ã—ãŸæ™‚ã®å„åˆ†å‰²ã«å­˜åœ¨ã™ã‚‹ã‚¨ãƒƒã‚¸ç”»ç´ ã®é »åº¦ã‚’æ±‚ã‚ã‚‹é–¢æ•°*/
 	calDiividedEdgepixelFrequency(tablet, relabel, strengthImage, strength, width, height, n, flag);
 
 	flag = 1;
 
 
-	//’Ç‰Á(test)F•ûŒüƒqƒXƒgƒOƒ‰ƒ€‚Ìå²‚ğ‡‚í‚¹‚é‘O‚ÆŒãC‚¨‚æ‚ÑƒGƒbƒW‰æ‘f‚Ì•p“x‚ğ•\¦ //////////////////////////////
+	//è¿½åŠ (test):æ–¹å‘ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã®å–å¾—æ–¹å‘åˆã‚ã›å‰ã¨å¾Œã¨ä¿®æ­£å‰ã¨ã‚¨ãƒƒã‚¸ç”»ç´ ã®é »åº¦ã‚’è¡¨ç¤º //////////////////////////////
 	/*IplImage *inImg, *inImg2;
 	inImg = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 1);
 	inImg2 = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 1);*/
 	for (i = 0; i <= n; i++) {
 		for (j = 0; j < DivisionNumber; j++) {
-			(tablet + i)->diividedEdgepixelFrequency_misuno[j] = 0.0; //‰Šú‰»
+			(tablet + i)->diividedEdgepixelFrequency_misuno[j] = 0.0; //åˆæœŸåŒ–
 		}
 	}
 	for (i = 0; i <= n; i++) {
@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
 
 	for (i = 0; i <= n; i++) {
 		for (j = 0; j < DivisionNumber; j++) {
-			(tablet + i)->diividedEdgepixelFrequency[j] = 0.0; //‰Šú‰»
+			(tablet + i)->diividedEdgepixelFrequency[j] = 0.0; //åˆæœŸåŒ–
 		}
 	}
 
@@ -328,24 +328,24 @@ int main(int argc, char* argv[])
 	}
 */
 	for (i = 1; i <= n; i++) {
-		printf("\n–ò:%d\n‰ñ“]ŒãDirectionHist:", i);
+		printf("\nè–¬:%d\nå›è»¢å‰DirectionHist:", i);
 		for (j = 0.0; j < TheNumberOfClass; j += 1.0) {
-			printf("%4.lf@    ", directionHist0[i * TheNumberOfClass + (int)j]);
+			printf("%4.lf 	    ", directionHist0[i * TheNumberOfClass + (int)j]);
 		}
 		printf("\n");
-		/*printf("‰ñ“]ŒãDirectionHist:");
+		/*printf("å›è»¢å¾ŒDirectionHist:");
 		for (j = 0.0; j < TheNumberOfClass; j += 1.0) {
-			printf("%lf@    ", directionHist2[i * TheNumberOfClass + (int)j]);
+			printf("%lf 	    ", directionHist2[i * TheNumberOfClass + (int)j]);
 		}
 		printf("\n");*/
-		printf("ƒGƒbƒW•p“x(––ì):");
+		printf("ã‚¨ãƒƒã‚¸é »åº¦(ä¸­å¿ƒ):");
 		for (j = 0; j < DivisionNumber; j++) {
-			printf("%lf@", (tablet + i)->diividedEdgepixelFrequency_misuno[j]);
+			printf("%lf 	", (tablet + i)->diividedEdgepixelFrequency_misuno[j]);
 		}
 		printf("\n");
-		printf("ƒGƒbƒW•p“x(“¡ŠÔ):");
+		printf("ã‚¨ãƒƒã‚¸é »åº¦(åˆ»å°):");
 		for (j = 0; j < DivisionNumber; j++) {
-			printf("%lf@", (tablet + i)->diividedEdgepixelFrequency[j]);
+			printf("%lf 	", (tablet + i)->diividedEdgepixelFrequency[j]);
 		}
 		printf("\n\n\n");
 		/*cvNamedWindow("input");
@@ -363,13 +363,13 @@ int main(int argc, char* argv[])
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/*ƒ}ƒXƒ^[ƒf[ƒ^‚É“ü—Í‰æ‘œ‚Ìî•ñ‚ğ’Ç‰Á‚·‚é*/
+	/*ãƒã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿ã«å…¥åŠ›ç”»åƒã®æƒ…å ±ã‚’è¿½åŠ ã™ã‚‹*/
 	addMaster(tablet, master, &masterNum, n, argv[2]);
 
-	//ƒ}ƒXƒ^[ƒtƒ@ƒCƒ‹‚É‘‚«‚ŞŠÖ”
+	//ãƒã‚¹ã‚¿ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã«æ›¸ãè¾¼ã‚€é–¢æ•°
 	writeMaster(masterNum, vectorNum, master, argv[3]);
 
-	// --- ƒƒ‚ƒŠ‚Ì‰ğ•ú ---
+	// --- ãƒ¡ãƒ¢ãƒªã®è§£æ”¾ ---
 	free(inputBmp);
 	free(gray);
 	free(inputPgm);
@@ -385,8 +385,9 @@ int main(int argc, char* argv[])
 	free(directionHist2);
 	free(BilateralImage);
 
-	//FƒqƒXƒgƒOƒ‰ƒ€‘‚«‚İŠÖ”(test)
+	//è‰²ãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ã®æ›¸ãè¾¼ã¿é–¢æ•°(test)
 	//writeRGBHist(argv[4], rHist, gHist, bHist);
+	std::cin.get(); // ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒã‚­ãƒ¼ã‚’æŠ¼ã™ã¾ã§å¾…æ©Ÿã™ã‚‹
 
 	return 0;
 }

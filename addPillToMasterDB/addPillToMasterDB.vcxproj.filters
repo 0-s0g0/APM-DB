@@ -58,5 +58,8 @@
     <None Include="..\x64\Release\makemaster_21.bat">
       <Filter>リソース ファイル</Filter>
     </None>
+    <None Include="..\x64\Debug\makemaster_22.bat">
+      <Filter>ヘッダー ファイル</Filter>
+    </None>
   </ItemGroup>
 </Project>
