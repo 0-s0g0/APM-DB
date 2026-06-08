@@ -78,6 +78,19 @@ int main(int argc, char* argv[])
 	inputPgm = binarization(gray, width, height, BinarizationNum);
 	sprintf_s(fileNameOut, "./write/pgm/%s_02_binarization", argv[2]);
 	writePGM(fileNameOut, inputPgm, width, height);
+	/* --- 追加：収縮処理（影消し） --- */
+// 1. inputPgm(ポインタ)をOpenCVのMat形式に変換
+	cv::Mat binMat(height, width, CV_8UC1, inputPgm);
+
+	// 2. 収縮（Erosion）を実行。3x3の行列で1回行うと周囲1ピクセル削れます。
+	// 影がひどい場合は iterations の数を 2 や 3 に増やしてください。
+	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+	cv::erode(binMat, binMat, kernel, cv::Point(-1, -1), 2); // 2回実行（計2ピクセル削る）
+
+	// 3. 処理後のデータを元のポインタに戻す（binMatの中身が書き換わっているので自動で反映されます）
+	sprintf_s(fileNameOut, "./write/pgm/%s_02_binarization_eroded", argv[2]);
+	writePGM(fileNameOut, inputPgm, width, height);
+	/* ------------------------------ */
 	/*領域確保*/
 	label = (unsigned int*)malloc(sizeof(unsigned int) * width * height);
 	/*ラベリング処理*/
@@ -172,7 +185,7 @@ int main(int argc, char* argv[])
 	makeStrengthHist(strength, tablet, strengthHist, relabel, width, height, n);
 
 	//勾配強度ヒストグラムのしきい値を求めしきい値を適用した画像を作成する
-	reMakeStrengthImage(strengthHist, relabel, width, height, n, tablet, areaOfEdge, strength, strengthImage);
+	reMakeStrengthImage(strengthHist, relabel, width, height, n, tablet, areaOfEdge * 1.2, strength, strengthImage);
 	sprintf_s(fileNameOut, "./write/pgm/%s_04_strength_image", argv[2]);
 	writePGM(fileNameOut, strengthImage, width, height);
 
