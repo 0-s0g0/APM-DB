@@ -93,10 +93,96 @@ int main(int argc, char* argv[])
 	/* ------------------------------ */
 	/*領域確保*/
 	label = (unsigned int*)malloc(sizeof(unsigned int) * width * height);
-	/*ラベリング処理*/
-	n = labeling(inputPgm, label, width, height);
-	n = deleteSmallArea(label, n, width, height, deleteSmallAreaNum);
-	//printf("n=%d",n);
+	memset(label, 0, sizeof(unsigned int) * width * height);
+
+	/* 距離変換＋watershedによる接触錠剤の分離処理 */
+	cv::Mat pillMask;
+	cv::threshold(binMat, pillMask, 0, 255, cv::THRESH_BINARY);
+
+	cv::Mat openKernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3));
+	cv::morphologyEx(pillMask, pillMask, cv::MORPH_OPEN, openKernel, cv::Point(-1, -1), 1);
+
+	cv::Mat dist;
+	cv::distanceTransform(pillMask, dist, cv::DIST_L2, 5);
+	cv::normalize(dist, dist, 0.0, 1.0, cv::NORM_MINMAX);
+
+	cv::Mat sureForeground;
+	cv::threshold(dist, sureForeground, 0.45, 1.0, cv::THRESH_BINARY);
+	sureForeground.convertTo(sureForeground, CV_8U, 255);
+	cv::morphologyEx(sureForeground, sureForeground, cv::MORPH_OPEN, openKernel, cv::Point(-1, -1), 1);
+	cv::imwrite("03_watershed_markers.bmp", sureForeground);
+
+	cv::Mat markers;
+	int markerCount = cv::connectedComponents(sureForeground, markers, 8, CV_32S);
+	if (markerCount <= 1) {
+		printf_s("watershedの種が見つからないため、通常の連結成分でラベリングします。\n");
+		markerCount = cv::connectedComponents(pillMask, markers, 8, CV_32S);
+	}
+
+	markers = markers + 1;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			if (pillMask.at<unsigned char>(y, x) > 0 &&
+				sureForeground.at<unsigned char>(y, x) == 0) {
+				markers.at<int>(y, x) = 0;
+			}
+		}
+	}
+
+	cv::Mat watershedInput;
+	cv::cvtColor(pillMask, watershedInput, cv::COLOR_GRAY2BGR);
+	cv::GaussianBlur(watershedInput, watershedInput, cv::Size(7, 7), 0);
+	cv::watershed(watershedInput, markers);
+
+	/* watershed境界(-1)を近くの錠剤ラベルで埋める */
+	for (int y = 1; y < height - 1; y++) {
+		for (int x = 1; x < width - 1; x++) {
+			if (pillMask.at<unsigned char>(y, x) == 0) continue;
+			if (markers.at<int>(y, x) != -1) continue;
+
+			for (int dy = -1; dy <= 1; dy++) {
+				for (int dx = -1; dx <= 1; dx++) {
+					int neighbor = markers.at<int>(y + dy, x + dx);
+					if (neighbor > 1) {
+						markers.at<int>(y, x) = neighbor;
+						dy = 2;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	cv::Mat labelMat = cv::Mat::zeros(height, width, CV_32S);
+	std::map<int, int> markerToLabel;
+
+	int labelIdx = 1;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			int marker = markers.at<int>(y, x);
+			if (pillMask.at<unsigned char>(y, x) == 0 || marker <= 1) continue;
+
+			if (markerToLabel.find(marker) == markerToLabel.end()) {
+				markerToLabel[marker] = labelIdx;
+				labelIdx++;
+			}
+			labelMat.at<int>(y, x) = markerToLabel[marker];
+		}
+	}
+	n = labelIdx - 1;
+
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			label[y * width + x] = labelMat.at<int>(y, x);
+		}
+	}
+
+	printf("watershed labeling n=%d\n", n);
+
+
+
+
+
 	/*領域確保*/
 	tablet = (inputTablet*)malloc(sizeof(inputTablet) * (n + 1));
 	for (i = 0; i <= n; i++) {
